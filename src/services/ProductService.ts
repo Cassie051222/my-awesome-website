@@ -10,13 +10,26 @@ export interface Product {
   imageUrl: string;
   stock: number;
   rating: number;
+  reviewCount?: number;
   specifications?: Record<string, string>;
   featured?: boolean;
   discount?: number;
   brand?: string;
 }
 
+export interface Review {
+  id?: string;
+  productId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: Date;
+  verified: boolean;
+}
+
 const PRODUCTS_COLLECTION = 'products';
+const REVIEWS_COLLECTION = 'reviews';
 
 // Seed sample products
 export const seedProducts = async () => {
@@ -30,6 +43,44 @@ export const seedProducts = async () => {
 
   const sampleProducts = [
     {
+      name: 'Windows 10 Home Activation Key',
+      price: 139.99,
+      description: 'Genuine Microsoft Windows 10 Home activation key. Digital delivery within 24 hours of purchase.',
+      category: 'Software',
+      imageUrl: 'https://images.unsplash.com/photo-1551430872-6f475ef24290?auto=format&fit=crop&q=80&w=1470',
+      stock: 500,
+      rating: 4.8,
+      reviewCount: 124,
+      specifications: {
+        'Type': 'Digital License',
+        'Version': 'Windows 10 Home',
+        'Language': 'All Languages',
+        'Activation': 'Online Activation',
+        'Users': '1 PC'
+      },
+      featured: true,
+      brand: 'Microsoft'
+    },
+    {
+      name: 'Windows 11 Home Digital License',
+      price: 169.99,
+      description: 'Official Windows 11 Home license key with instant delivery. Includes free upgrade from Windows 10.',
+      category: 'Software',
+      imageUrl: 'https://images.unsplash.com/photo-1633227220797-5550677c4c42?auto=format&fit=crop&q=80&w=1288',
+      stock: 500,
+      rating: 4.9,
+      reviewCount: 86,
+      specifications: {
+        'Type': 'Digital License',
+        'Version': 'Windows 11 Home',
+        'Language': 'All Languages',
+        'Activation': 'Online Activation',
+        'Users': '1 PC'
+      },
+      featured: true,
+      brand: 'Microsoft'
+    },
+    {
       name: 'Gaming Laptop Pro',
       price: 1299.99,
       description: 'High-performance gaming laptop with RGB keyboard and ray tracing support.',
@@ -37,6 +88,7 @@ export const seedProducts = async () => {
       imageUrl: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1468&q=80',
       stock: 15,
       rating: 4.8,
+      reviewCount: 32,
       specifications: {
         'CPU': 'Intel Core i7-12700H',
         'RAM': '16GB DDR5',
@@ -277,6 +329,58 @@ export const getProductById = async (id: string): Promise<Product | null> => {
     }
   } catch (error) {
     console.error('Error getting product: ', error);
+    throw error;
+  }
+};
+
+// Get reviews for a product
+export const getProductReviews = async (productId: string): Promise<Review[]> => {
+  try {
+    const reviewsQuery = query(
+      collection(db, REVIEWS_COLLECTION),
+      where('productId', '==', productId),
+      orderBy('date', 'desc')
+    );
+    
+    const querySnapshot = await getDocs(reviewsQuery);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      date: doc.data().date.toDate()
+    } as Review));
+  } catch (error) {
+    console.error('Error getting product reviews: ', error);
+    throw error;
+  }
+};
+
+// Add a review for a product
+export const addProductReview = async (review: Review): Promise<string> => {
+  try {
+    // Add the review
+    const reviewDocRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
+      ...review,
+      date: new Date()
+    });
+    
+    // Get all reviews for this product to calculate new average
+    const reviews = await getProductReviews(review.productId);
+    
+    // Calculate new average rating
+    const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
+    const averageRating = totalRating / reviews.length;
+    
+    // Update product with new rating and review count
+    const productRef = doc(db, PRODUCTS_COLLECTION, review.productId);
+    await updateDoc(productRef, {
+      rating: averageRating,
+      reviewCount: reviews.length
+    });
+    
+    return reviewDocRef.id;
+  } catch (error) {
+    console.error('Error adding product review: ', error);
     throw error;
   }
 }; 

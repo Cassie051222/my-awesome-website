@@ -16,6 +16,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import ProductDetail from './pages/ProductDetail';
+import Profile from './pages/Profile';
 import { seedProducts } from './services/ProductService';
 
 const App: React.FC = () => {
@@ -248,14 +249,17 @@ const App: React.FC = () => {
               <Route path="/smart-trade" element={<Navigate to="/software" replace />} />
               <Route path="/hardware" element={<Navigate to="/products" replace />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/third-party-apps" element={<ThirdPartyApps />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/orders" element={<Profile initialTab={1} />} />
+              <Route path="/profile/settings" element={<Profile initialTab={2} />} />
               <Route path="/search" element={<Navigate to="/products" replace />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
             </Routes>
             <Footer toggleTheme={toggleThemeMode} />
           </Router>

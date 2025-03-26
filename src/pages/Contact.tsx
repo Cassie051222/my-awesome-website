@@ -73,7 +73,7 @@ const Contact = () => {
   ];
 
   return (
-    <Box sx={{ pt: 10, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
       <Box
         sx={{
@@ -389,11 +389,12 @@ const Contact = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          variant="filled"
         >
           {snackbar.message}
         </Alert>

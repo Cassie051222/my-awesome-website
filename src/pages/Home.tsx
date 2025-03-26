@@ -13,42 +13,57 @@ import {
 import { motion } from 'framer-motion';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
+// Placeholder for local image imports (user will provide these)
+// Import them like this when the images are available
+// import restaurant from '../assets/images/business/restaurant.jpg';
+// import butchery from '../assets/images/business/butchery.jpg';
+// etc.
+
 const Home = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
+  // Using the images from the public directory instead of Unsplash
+  // If images are not yet uploaded, it will use a placeholder
+  const imagePlaceholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZWVlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjYWFhYWFhIj5JbWFnZSBQbGFjZWhvbGRlcjwvdGV4dD48L3N2Zz4=';
+
+  const getImagePath = (directory: string, filename: string): string => {
+    // This function tries to use the local image if available, otherwise falls back to the placeholder
+    return `/images/${directory}/${filename}`;
+  };
+
   const businessTypes = [
     {
       title: 'Restaurants and Pub & Grills',
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4',
+      image: getImagePath('business', 'restaurant.jpg'),
     },
     {
       title: 'Butcheries',
-      image: 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143',
+      image: getImagePath('business', 'butchery.jpg'),
     },
     {
       title: 'Cafe\' & supermarkets',
-      image: 'https://images.unsplash.com/photo-1534723452862-4c874018d66d',
+      image: getImagePath('business', 'cafe.jpg'),
     },
     {
       title: 'Liquor Stores',
-      image: 'https://images.unsplash.com/photo-1597290282695-edc43d0e7129',
+      image: getImagePath('business', 'liquor.jpg'),
     },
     {
       title: 'Hardware Stores',
-      image: 'https://images.unsplash.com/photo-1581783898377-1c85bf937427',
+      image: getImagePath('business', 'hardware.jpg'),
     },
     {
       title: 'Gas & Appliance Stores',
-      image: 'https://images.unsplash.com/photo-1585435557343-3b092031a831',
+      image: getImagePath('business', 'gas.jpg'),
     },
     {
       title: 'Farm Stalls & Coffee Shops',
-      image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb',
+      image: getImagePath('business', 'farm.jpg'),
     },
     {
       title: 'Automotive Workshops',
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3',
+      image: getImagePath('business', 'automotive.jpg'),
     },
   ];
 
@@ -56,19 +71,19 @@ const Home = () => {
     {
       title: 'Smart-Trade Solutions',
       description: 'Innovative software solutions tailored to your business needs',
-      image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97',
+      image: getImagePath('services', 'software.jpg'),
       path: '/software'
     },
     {
       title: 'Hardware Solutions',
       description: 'State-of-the-art hardware solutions for optimal performance',
-      image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f',
+      image: getImagePath('services', 'hardware.jpg'),
       path: '/products'
     },
     {
       title: 'Support',
       description: 'Dedicated support team ready to assist you',
-      image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d',
+      image: getImagePath('services', 'support.jpg'),
       path: '/contact'
     }
   ];
@@ -77,19 +92,19 @@ const Home = () => {
     {
       title: 'Hardware',
       description: 'Explore our selection of high-performance hardware for all your tech needs.',
-      image: 'https://images.unsplash.com/photo-1603732551658-5fabbafa84eb',
+      image: getImagePath('services', 'hardware.jpg'),
       path: '/products'
     },
     {
       title: 'Smart-Trade',
       description: 'Discover premium software solutions to enhance your productivity.',
-      image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952',
+      image: getImagePath('services', 'software.jpg'),
       path: '/smart-trade'
     },
     {
       title: 'Accessories',
       description: 'Find the perfect accessories to complement your tech setup.',
-      image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3',
+      image: getImagePath('business', 'hardware.jpg'),
       path: '/products?category=accessories'
     }
   ];
@@ -112,7 +127,6 @@ const Home = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'url(https://images.unsplash.com/photo-1454165804606-c3d57bc86b40)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             opacity: theme.palette.mode === 'dark' ? 0.1 : 0.05,
@@ -198,6 +212,9 @@ const Home = () => {
                       image={business.image}
                       alt={business.title}
                       sx={{ objectFit: 'cover' }}
+                      onError={(event) => {
+                        event.currentTarget.src = imagePlaceholder;
+                      }}
                     />
                     <CardContent sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Typography variant="h6" align="center">
@@ -268,6 +285,9 @@ const Home = () => {
                     image={service.image}
                     alt={service.title}
                     sx={{ objectFit: 'cover' }}
+                    onError={(event) => {
+                      event.currentTarget.src = imagePlaceholder;
+                    }}
                   />
                   <CardContent sx={{ flexGrow: 1 }}>
                     <Typography variant="h6" gutterBottom>

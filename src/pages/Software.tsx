@@ -162,7 +162,7 @@ const Software = () => {
   };
 
   return (
-    <Box sx={{ pt: 10, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
       <Box
         sx={{
@@ -180,10 +180,10 @@ const Software = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'url(https://images.unsplash.com/photo-1556742393-75aa5a16b0c3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80)',
+            background: 'url(https://images.unsplash.com/photo-1617791160536-598cf32026fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1664&q=80)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: theme.palette.mode === 'dark' ? 0.1 : 0.05,
+            opacity: theme.palette.mode === 'dark' ? 0.2 : 0.15,
             zIndex: 0,
           },
         }}

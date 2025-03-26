@@ -18,7 +18,7 @@ const OrderConfirmation = () => {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ pt: 10, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
       <Box
         sx={{
@@ -124,7 +124,7 @@ const OrderConfirmation = () => {
                 </Button>
                 <Button
                   variant="outlined"
-                  onClick={() => navigate('/account')}
+                  onClick={() => navigate('/profile')}
                 >
                   View Order History
                 </Button>

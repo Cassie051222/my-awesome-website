@@ -140,7 +140,15 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
           <Divider />
           <List>
             <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/profile" onClick={() => setMobileMenuOpen(false)}>
+                <ListItemIcon><Person /></ListItemIcon>
+                <ListItemText primary="My Profile" />
+              </ListItemButton>
+            </ListItem>
+            <Divider />
+            <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
+                <ListItemIcon><Logout /></ListItemIcon>
                 <ListItemText primary="Logout" />
               </ListItemButton>
             </ListItem>
@@ -220,6 +228,10 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
                 {user.email}
               </Typography>
             </Box>
+            <Divider />
+            <MenuItem component={RouterLink} to="/profile" onClick={handleMenuClose}>
+              <Person sx={{ mr: 1 }} /> My Profile
+            </MenuItem>
             <Divider />
             <MenuItem onClick={handleLogout}>
               <Logout sx={{ mr: 1 }} /> Logout

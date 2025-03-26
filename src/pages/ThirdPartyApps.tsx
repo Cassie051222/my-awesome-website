@@ -56,7 +56,7 @@ const ThirdPartyApps = () => {
   ];
 
   return (
-    <Box sx={{ pt: 10, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
       <Box
         sx={{

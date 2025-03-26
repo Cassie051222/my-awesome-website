@@ -165,7 +165,7 @@ const ProductSearch = () => {
   }, [selectedCategory, searchQuery, priceRange, sortBy, sortDirection]);
   
   return (
-    <Box sx={{ pt: 4, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
       <Box
         sx={{
@@ -497,14 +497,14 @@ const ProductSearch = () => {
       {/* Notification */}
       <Snackbar
         open={notification.open}
-        autoHideDuration={3000}
+        autoHideDuration={6000}
         onClose={() => setNotification({ ...notification, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Alert
           onClose={() => setNotification({ ...notification, open: false })}
           severity={notification.severity}
-          sx={{ width: '100%' }}
+          variant="filled"
         >
           {notification.message}
         </Alert>

@@ -14,11 +14,21 @@ import {
   Step,
   StepLabel,
   Alert,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Paper,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import PaymentIcon from '@mui/icons-material/Payment';
+import { createOrder, Order } from '../services/OrderService';
 
 const steps = ['Shipping Information', 'Payment Details', 'Review Order'];
 
@@ -39,10 +49,12 @@ const Checkout = () => {
     country: '',
   });
   const [paymentData, setPaymentData] = useState({
+    method: 'credit',
     cardNumber: '',
     cardName: '',
     expiryDate: '',
     cvv: '',
+    reference: '', // For EFT reference
   });
   const [error, setError] = useState('');
 
@@ -65,11 +77,43 @@ const Checkout = () => {
     });
   };
 
-  const handleNext = () => {
+  const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPaymentData({
+      ...paymentData,
+      method: e.target.value,
+    });
+  };
+
+  const handleNext = async () => {
     if (activeStep === steps.length - 1) {
-      // Handle order submission
-      console.log('Order submitted:', { shippingData, paymentData, items, total });
-      navigate('/order-confirmation');
+      try {
+        if (!user) {
+          setError('Please log in to complete your purchase');
+          return;
+        }
+
+        // Create order in Firebase
+        const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
+          userId: user.uid,
+          items: items.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          total: orderTotal,
+          status: 'Processing' as const,
+          paymentMethod: paymentData.method,
+          paymentStatus: 'Pending' as const,
+          shippingAddress: shippingData,
+        };
+
+        await createOrder(orderData);
+        navigate('/order-confirmation');
+      } catch (error) {
+        console.error('Error creating order:', error);
+        setError('Failed to create order. Please try again.');
+      }
     } else {
       setActiveStep((prevStep) => prevStep + 1);
     }
@@ -169,50 +213,214 @@ const Checkout = () => {
         );
       case 1:
         return (
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Card Number"
-                name="cardNumber"
-                value={paymentData.cardNumber}
-                onChange={handlePaymentChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Cardholder Name"
-                name="cardName"
-                value={paymentData.cardName}
-                onChange={handlePaymentChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="Expiry Date"
-                name="expiryDate"
-                placeholder="MM/YY"
-                value={paymentData.expiryDate}
-                onChange={handlePaymentChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                required
-                fullWidth
-                label="CVV"
-                name="cvv"
-                type="password"
-                value={paymentData.cvv}
-                onChange={handlePaymentChange}
-              />
-            </Grid>
-          </Grid>
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              Select Payment Method
+            </Typography>
+            <FormControl component="fieldset" sx={{ width: '100%', mb: 3 }}>
+              <RadioGroup
+                name="method"
+                value={paymentData.method}
+                onChange={handlePaymentMethodChange}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <Paper 
+                      elevation={paymentData.method === 'credit' ? 4 : 1}
+                      sx={{ 
+                        p: 2, 
+                        border: paymentData.method === 'credit' ? `2px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                        }
+                      }}
+                      onClick={() => setPaymentData({...paymentData, method: 'credit'})}
+                    >
+                      <FormControlLabel 
+                        value="credit" 
+                        control={<Radio />} 
+                        label={
+                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                            <CreditCardIcon fontSize="large" color={paymentData.method === 'credit' ? 'primary' : 'action'} />
+                            <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 'bold' }}>
+                              Credit/Debit Card
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" align="center">
+                              Pay securely with your bank card
+                            </Typography>
+                          </Box>
+                        }
+                        sx={{ width: '100%', m: 0 }}
+                      />
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Paper 
+                      elevation={paymentData.method === 'ozow' ? 4 : 1}
+                      sx={{ 
+                        p: 2, 
+                        border: paymentData.method === 'ozow' ? `2px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                        }
+                      }}
+                      onClick={() => setPaymentData({...paymentData, method: 'ozow'})}
+                    >
+                      <FormControlLabel 
+                        value="ozow" 
+                        control={<Radio />} 
+                        label={
+                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                            <PaymentIcon fontSize="large" color={paymentData.method === 'ozow' ? 'primary' : 'action'} />
+                            <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 'bold' }}>
+                              Ozow
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" align="center">
+                              Pay instantly with Ozow
+                            </Typography>
+                          </Box>
+                        }
+                        sx={{ width: '100%', m: 0 }}
+                      />
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Paper 
+                      elevation={paymentData.method === 'eft' ? 4 : 1}
+                      sx={{ 
+                        p: 2, 
+                        border: paymentData.method === 'eft' ? `2px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
+                        borderRadius: 2,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: theme.palette.primary.main,
+                        }
+                      }}
+                      onClick={() => setPaymentData({...paymentData, method: 'eft'})}
+                    >
+                      <FormControlLabel 
+                        value="eft" 
+                        control={<Radio />} 
+                        label={
+                          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                            <AccountBalanceIcon fontSize="large" color={paymentData.method === 'eft' ? 'primary' : 'action'} />
+                            <Typography variant="subtitle1" sx={{ mt: 1, fontWeight: 'bold' }}>
+                              EFT
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" align="center">
+                              Pay via bank transfer
+                            </Typography>
+                          </Box>
+                        }
+                        sx={{ width: '100%', m: 0 }}
+                      />
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </RadioGroup>
+            </FormControl>
+
+            <Divider sx={{ my: 3 }} />
+
+            {paymentData.method === 'credit' && (
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Card Number"
+                    name="cardNumber"
+                    value={paymentData.cardNumber}
+                    onChange={handlePaymentChange}
+                    placeholder="1234 5678 9012 3456"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Cardholder Name"
+                    name="cardName"
+                    value={paymentData.cardName}
+                    onChange={handlePaymentChange}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Expiry Date"
+                    name="expiryDate"
+                    placeholder="MM/YY"
+                    value={paymentData.expiryDate}
+                    onChange={handlePaymentChange}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="CVV"
+                    name="cvv"
+                    type="password"
+                    value={paymentData.cvv}
+                    onChange={handlePaymentChange}
+                  />
+                </Grid>
+              </Grid>
+            )}
+
+            {paymentData.method === 'ozow' && (
+              <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="body1" paragraph>
+                  You will be redirected to Ozow to complete your payment after you place your order.
+                </Typography>
+                <Box 
+                  component="img" 
+                  src="https://ozow.com/wp-content/uploads/2022/04/svg-ozow-logo-blue.svg" 
+                  alt="Ozow" 
+                  sx={{ 
+                    maxWidth: '120px', 
+                    my: 2 
+                  }} 
+                />
+                <Typography variant="body2" color="text.secondary">
+                  Secure, instant EFT payments with Ozow
+                </Typography>
+              </Box>
+            )}
+
+            {paymentData.method === 'eft' && (
+              <Box>
+                <Alert severity="info" sx={{ mb: 3 }}>
+                  Please use the following bank details to make your payment. Your order will be processed once payment is confirmed.
+                </Alert>
+                <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, mb: 3 }}>
+                  <Typography variant="body2">Bank: FNB</Typography>
+                  <Typography variant="body2">Account Name: Smart-Trade</Typography>
+                  <Typography variant="body2">Account Number: 12345678910</Typography>
+                  <Typography variant="body2">Branch Code: 250655</Typography>
+                  <Typography variant="body2">Reference: ST-{Math.floor(Math.random() * 100000)}</Typography>
+                </Box>
+                <TextField
+                  fullWidth
+                  label="Your Payment Reference"
+                  name="reference"
+                  value={paymentData.reference}
+                  onChange={handlePaymentChange}
+                  helperText="Enter the reference you used when making the payment"
+                  sx={{ mt: 2 }}
+                />
+              </Box>
+            )}
+          </Box>
         );
       case 2:
         return (
@@ -232,6 +440,17 @@ const Checkout = () => {
               {shippingData.email}
             </Typography>
             <Divider sx={{ my: 3 }} />
+            
+            <Typography variant="h6" gutterBottom>
+              Payment Method
+            </Typography>
+            <Typography variant="body1" paragraph>
+              {paymentData.method === 'credit' && 'Credit/Debit Card'}
+              {paymentData.method === 'ozow' && 'Ozow Instant EFT'}
+              {paymentData.method === 'eft' && 'Electronic Funds Transfer (EFT)'}
+            </Typography>
+            <Divider sx={{ my: 3 }} />
+            
             <Typography variant="h6" gutterBottom>
               Order Summary
             </Typography>
@@ -268,7 +487,7 @@ const Checkout = () => {
   };
 
   return (
-    <Box sx={{ pt: 10, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section */}
       <Box
         sx={{

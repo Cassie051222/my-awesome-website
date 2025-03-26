@@ -76,7 +76,7 @@ const About = () => {
   ];
 
   return (
-    <Box sx={{ pt: 10, pb: 8 }}>
+    <Box sx={{ pb: 8 }}>
       {/* Hero Section with Particle Effect Background */}
       <Box
         sx={{
