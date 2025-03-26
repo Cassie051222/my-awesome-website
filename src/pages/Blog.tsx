@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Container, 
   Typography, 
@@ -11,14 +11,9 @@ import {
   Chip,
   CircularProgress,
   Divider,
-  useTheme,
-  Link
+  useTheme
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import TechIcon from '@mui/icons-material/Memory';
-import ComputerIcon from '@mui/icons-material/Computer';
-import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
-import LanguageIcon from '@mui/icons-material/Language';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface NewsArticle {
@@ -39,32 +34,31 @@ const Blog: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [isUsingFallbackData, setIsUsingFallbackData] = useState(false);
 
-  // Use Gnews API instead (free tier)
-  const GNEWS_API_KEY = '9f20c31a8fc16488e21c9d47a81d7d39';
+  // Use News API
+  const NEWS_API_KEY = process.env.REACT_APP_NEWS_API_KEY || '496ac9196f36477fbd1e73cae4d4ecdc';
 
-  // Categories for tech news
-  const categories = [
-    { name: 'All', icon: <TechIcon /> },
-    { name: 'Computers', icon: <ComputerIcon /> },
-    { name: 'Mobile', icon: <PhoneAndroidIcon /> },
-    { name: 'Internet', icon: <LanguageIcon /> }
-  ];
-
-  const fetchNews = async () => {
+  const fetchNews = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setIsUsingFallbackData(false);
 
       const response = await fetch(
-        `https://gnews.io/api/v4/top-headlines?category=technology&lang=en&country=us&max=10&apikey=${GNEWS_API_KEY}`
+        `https://newsapi.org/v2/top-headlines?category=technology&language=en&pageSize=10&apiKey=${NEWS_API_KEY}`
       );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch news');
+        console.error('News API error:', response.status, response.statusText);
+        throw new Error(`API returned status: ${response.status}`);
       }
 
       const data = await response.json();
+      
+      if (data.status !== 'ok' || !data.articles || data.articles.length === 0) {
+        throw new Error('No articles returned from the API');
+      }
       
       // Map the articles to match our NewsArticle interface
       // Assign random categories for demonstration
@@ -74,7 +68,7 @@ const Blog: React.FC = () => {
         title: article.title,
         description: article.description,
         url: article.url,
-        urlToImage: article.image || 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
+        urlToImage: article.urlToImage || 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
         publishedAt: article.publishedAt,
         source: {
           name: article.source.name
@@ -87,10 +81,46 @@ const Blog: React.FC = () => {
     } catch (err) {
       console.error("Error fetching news:", err);
       setError('Failed to load latest tech news. Please try again later.');
+      
+      // Use fallback data instead of showing error
+      // Define fallback data inside the callback to avoid dependency changes
+      const fallbackNews: NewsArticle[] = [
+        {
+          title: "The Future of Artificial Intelligence in Healthcare",
+          description: "How AI is revolutionizing diagnostics, treatment plans, and patient care across the healthcare industry.",
+          url: "#",
+          urlToImage: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+          publishedAt: new Date().toISOString(),
+          source: { name: "Tech Insights" },
+          category: "AI"
+        },
+        {
+          title: "New MacBook Pro Features Revolutionary Chip Architecture",
+          description: "Apple's latest MacBook Pro models showcase incredible performance gains with the newest generation of silicon.",
+          url: "#",
+          urlToImage: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80", 
+          publishedAt: new Date().toISOString(),
+          source: { name: "Apple Insider" },
+          category: "Computers"
+        },
+        {
+          title: "5G Deployment Accelerates Globally",
+          description: "Telecom companies are rapidly expanding 5G coverage, promising faster speeds and lower latency for mobile users.",
+          url: "#",
+          urlToImage: "https://images.unsplash.com/photo-1543269664-56d93c1b41a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+          publishedAt: new Date().toISOString(),
+          source: { name: "Mobile World" },
+          category: "Mobile"
+        }
+      ];
+      
+      setNewsArticles(fallbackNews);
+      setIsUsingFallbackData(true);
+      setLastUpdated(new Date());
     } finally {
       setLoading(false);
     }
-  };
+  }, [NEWS_API_KEY]); // Remove fallbackNews from dependencies
 
   // Function to format date in a readable format
   const formatDate = (dateString: string) => {
@@ -107,7 +137,8 @@ const Blog: React.FC = () => {
   // Initial fetch on component mount
   useEffect(() => {
     fetchNews();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount, not when fetchNews changes
 
   // Set up auto-refresh every 3 hours
   useEffect(() => {
@@ -117,7 +148,8 @@ const Blog: React.FC = () => {
     }, 3 * 60 * 60 * 1000); // 3 hours in milliseconds
 
     return () => clearInterval(interval);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only set up the interval once on mount
 
   return (
     <Box sx={{ py: 8 }}>
@@ -167,32 +199,18 @@ const Blog: React.FC = () => {
       </Box>
 
       <Container maxWidth="lg">
-        {/* Category Filters */}
-        <Box sx={{ mb: 6, display: 'flex', justifyContent: 'center' }}>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
-            {categories.map((category) => (
-              <Chip
-                key={category.name}
-                icon={category.icon}
-                label={category.name}
-                clickable
-                color={category.name === 'All' ? 'primary' : 'default'}
-                variant={category.name === 'All' ? 'filled' : 'outlined'}
-                sx={{
-                  borderRadius: '16px',
-                  '&.MuiChip-colorPrimary': {
-                    background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
-                  },
-                  px: 2,
-                  py: 0.5
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
-
         {/* Last Updated Info */}
-        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="body2" color="text.secondary">
+            {isUsingFallbackData && (
+              <Chip 
+                label="Using demo content" 
+                size="small" 
+                color="warning" 
+                sx={{ mr: 2 }} 
+              />
+            )}
+          </Typography>
           <Typography variant="body2" color="text.secondary">
             Last updated: {lastUpdated.toLocaleString()}
           </Typography>
@@ -216,6 +234,7 @@ const Blog: React.FC = () => {
             borderRadius: 2,
             bgcolor: 'error.light',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 2
@@ -224,6 +243,22 @@ const Blog: React.FC = () => {
             <Typography variant="h6" color="error">
               {error}
             </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Chip
+                label="Try Again"
+                clickable
+                color="primary"
+                onClick={() => fetchNews()}
+                sx={{
+                  borderRadius: '16px',
+                  px: 2,
+                  py: 0.5,
+                  '&.MuiChip-colorPrimary': {
+                    background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
+                  },
+                }}
+              />
+            </Box>
           </Box>
         )}
 
@@ -365,16 +400,6 @@ const Blog: React.FC = () => {
             )}
           </>
         )}
-
-        {/* API Attribution */}
-        <Box sx={{ mt: 6, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            News provided by various sources via News API
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Auto-updating every 3 hours
-          </Typography>
-        </Box>
       </Container>
     </Box>
   );
