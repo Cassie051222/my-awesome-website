@@ -28,6 +28,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { getOrdersByUserId, Order } from '../services/OrderService';
 import { useLocation } from 'react-router-dom';
+import { useWishlist, WishlistItem } from '../contexts/WishlistContext';
+import { formatCurrency, formatDate } from '../utils/formatters';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -59,18 +61,11 @@ interface ProfileProps {
   initialTab?: number;
 }
 
-const Profile = ({ initialTab }: ProfileProps) => {
+const Profile = ({ initialTab = 0 }: ProfileProps) => {
   const theme = useTheme();
   const { user } = useAuth();
   const location = useLocation();
-  const [tabValue, setTabValue] = useState(() => {
-    if (initialTab !== undefined) return initialTab;
-    
-    // Set tab based on URL path if no initialTab provided
-    if (location.pathname.includes('/orders')) return 1;
-    if (location.pathname.includes('/settings')) return 2;
-    return 0;
-  });
+  const [tabValue, setTabValue] = useState(initialTab);
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     displayName: user?.displayName || '',
@@ -78,31 +73,45 @@ const Profile = ({ initialTab }: ProfileProps) => {
     phone: '',
     address: '',
   });
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { items: wishlistItems, removeItem } = useWishlist();
 
   useEffect(() => {
     const fetchOrders = async () => {
+      console.log('[Profile] Component mounted, checking for user:', user ? 'User exists' : 'No user');
+      
       if (user) {
         try {
           setLoading(true);
           setError(null); // Clear previous errors
-          console.log('[Profile] Fetching orders for user:', user.uid);
           
-          // Add additional debugging
-          console.log('[Profile] Current user:', JSON.stringify({
+          console.log('[Profile] Fetching orders for user:', user.uid);
+          console.log('[Profile] Current user details:', {
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName
-          }));
+            displayName: user.displayName,
+            isAnonymous: user.isAnonymous,
+            emailVerified: user.emailVerified
+          });
+          
+          // Check if we're connected to Firestore
+          console.log('[Profile] Checking Firestore connection before fetching orders');
           
           const userOrders = await getOrdersByUserId(user.uid);
           console.log('[Profile] Orders fetched successfully:', userOrders.length);
+          
+          if (userOrders.length === 0) {
+            console.log('[Profile] No orders found for user');
+          } else {
+            console.log('[Profile] First order:', JSON.stringify(userOrders[0], null, 2));
+          }
+          
           setOrders(userOrders);
-        } catch (err) {
+        } catch (err: any) {
           console.error('[Profile] Error fetching orders:', err);
-          setError('Failed to load orders. Please try again later.');
+          setError(`Failed to load orders: ${err.message || 'Unknown error'}`);
         } finally {
           setLoading(false);
         }
@@ -134,23 +143,6 @@ const Profile = ({ initialTab }: ProfileProps) => {
       ...profileData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-ZA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-    }).format(amount);
   };
 
   return (
@@ -203,6 +195,7 @@ const Profile = ({ initialTab }: ProfileProps) => {
             <Tab label="Profile" />
             <Tab label="Orders" />
             <Tab label="Settings" />
+            <Tab label="Wishlist" />
           </Tabs>
 
           <TabPanel value={tabValue} index={0}>
@@ -312,7 +305,7 @@ const Profile = ({ initialTab }: ProfileProps) => {
                               Date: {formatDate(order.createdAt)}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Items: {order.items.map(item => `${item.name} (x${item.quantity})`).join(', ')}
+                              Items: {order.items.map((item: {name: string, quantity: number}) => `${item.name} (x${item.quantity})`).join(', ')}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               Payment Method: {order.paymentMethod}
@@ -395,6 +388,58 @@ const Profile = ({ initialTab }: ProfileProps) => {
                 </List>
               </CardContent>
             </Card>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={3}>
+            {wishlistItems.length === 0 ? (
+              <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="body1" color="text.secondary">
+                  Your wishlist is empty. Start adding products you love!
+                </Typography>
+              </Box>
+            ) : (
+              <List>
+                {wishlistItems.map((item: WishlistItem) => (
+                  <React.Fragment key={item.id}>
+                    <ListItem alignItems="flex-start">
+                      <Box sx={{ display: 'flex', width: '100%' }}>
+                        <Box sx={{ width: 80, height: 80, mr: 2 }}>
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.name} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} 
+                          />
+                        </Box>
+                        <ListItemText
+                          primary={<Typography variant="subtitle1">{item.name}</Typography>}
+                          secondary={
+                            <Box>
+                              <Typography variant="body2" color="text.secondary">
+                                {item.description?.substring(0, 120)}...
+                              </Typography>
+                              <Typography variant="subtitle2" sx={{ mt: 1 }}>
+                                {formatCurrency(item.price)}
+                              </Typography>
+                            </Box>
+                          }
+                        />
+                        <ListItemSecondaryAction>
+                          <Button 
+                            variant="outlined" 
+                            color="error" 
+                            size="small"
+                            onClick={() => removeItem(item.id)}
+                          >
+                            Remove
+                          </Button>
+                        </ListItemSecondaryAction>
+                      </Box>
+                    </ListItem>
+                    <Divider variant="inset" component="li" />
+                  </React.Fragment>
+                ))}
+              </List>
+            )}
           </TabPanel>
         </Paper>
       </Container>

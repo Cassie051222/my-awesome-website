@@ -164,8 +164,8 @@ const ProductDetail = () => {
       return;
     }
     
-    // Apply the conversion rate for the cart item price
-    const adjustedPrice = product.price * 18.5;
+    // No need to apply conversion here since we'll use the already converted price
+    const adjustedPrice = product.price * 18.5; // Using the same conversion as in product listing
     
     addItem({
       id: product.id,
@@ -306,7 +306,7 @@ const ProductDetail = () => {
   }
   
   // Calculate prices
-  const priceInZAR = product?.price || 0;
+  const priceInZAR = (product?.price || 0) * 18.5;
   const finalPrice = product?.discount 
     ? priceInZAR * (1 - (product.discount / 100)) 
     : priceInZAR;

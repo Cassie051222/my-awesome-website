@@ -32,13 +32,28 @@ const PRODUCTS_COLLECTION = 'products';
 const REVIEWS_COLLECTION = 'reviews';
 
 // Seed sample products
-export const seedProducts = async () => {
+export const seedProducts = async (forceReseed: boolean = false) => {
+  // Check if we should skip seeding based on environment variable
+  const skipSeed = process.env.REACT_APP_SKIP_SEED === 'true';
+  if (skipSeed && !forceReseed) {
+    console.log('Seeding skipped due to environment configuration');
+    return;
+  }
+
   const querySnapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
-  
-  // Only seed if there are no products
-  if (!querySnapshot.empty) {
+
+  // Only seed if there are no products or if forced
+  if (!querySnapshot.empty && !forceReseed) {
     console.log('Products already exist, skipping seed');
     return;
+  }
+
+  // If force reseed, clear existing products first
+  if (forceReseed && !querySnapshot.empty) {
+    console.log('Force reseeding products...');
+    for (const docSnapshot of querySnapshot.docs) {
+      await deleteDoc(doc(db, PRODUCTS_COLLECTION, docSnapshot.id));
+    }
   }
 
   const sampleProducts = [

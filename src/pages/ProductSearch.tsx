@@ -415,7 +415,7 @@ const ProductSearch = () => {
                             image={product.imageUrl}
                             alt={product.name}
                             sx={{ cursor: 'pointer' }}
-                            onClick={() => navigate(`/product/${product.id}`)}
+                            onClick={() => navigate(`/products/${product.id}`)}
                           />
                           <CardContent sx={{ flexGrow: 1 }}>
                             <Box sx={{ mb: 1 }}>
@@ -435,7 +435,7 @@ const ProductSearch = () => {
                                 textOverflow: 'ellipsis',
                                 height: '3.6rem',
                               }}
-                              onClick={() => navigate(`/product/${product.id}`)}
+                              onClick={() => navigate(`/products/${product.id}`)}
                             >
                               {product.name}
                             </Typography>

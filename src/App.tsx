@@ -12,11 +12,20 @@ import Contact from './pages/Contact';
 import AuthModal from './components/AuthModal';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { WishlistProvider } from './contexts/WishlistContext';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import ProductDetail from './pages/ProductDetail';
 import Profile from './pages/Profile';
+import FAQ from './pages/FAQ';
+import Shipping from './pages/Shipping';
+import Returns from './pages/Returns';
+import Warranty from './pages/Warranty';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Blog from './pages/Blog';
+import AdminPage from './pages/Admin';
 import { seedProducts } from './services/ProductService';
 
 const App: React.FC = () => {
@@ -29,8 +38,8 @@ const App: React.FC = () => {
     const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setThemeMode(prefersDarkMode ? 'dark' : 'light');
     
-    // Seed products on initial load
-    seedProducts().catch(console.error);
+    // Comment out product seeding on app initialization to prevent duplicates
+    // seedProducts().catch(console.error);
   }, []);
 
   // Listen for system theme changes
@@ -235,34 +244,45 @@ const App: React.FC = () => {
       <CssBaseline />
       <AuthProvider>
         <CartProvider>
-          <Router>
-            <Navbar
-              onAuthClick={() => setAuthModalOpen(true)}
-            />
-            <AuthModal
-              open={authModalOpen}
-              onClose={() => setAuthModalOpen(false)}
-            />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/software" element={<Software />} />
-              <Route path="/smart-trade" element={<Navigate to="/software" replace />} />
-              <Route path="/hardware" element={<Navigate to="/products" replace />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/third-party-apps" element={<ThirdPartyApps />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/orders" element={<Profile initialTab={1} />} />
-              <Route path="/profile/settings" element={<Profile initialTab={2} />} />
-              <Route path="/search" element={<Navigate to="/products" replace />} />
-            </Routes>
-            <Footer toggleTheme={toggleThemeMode} />
-          </Router>
+          <WishlistProvider>
+            <Router>
+              <Navbar
+                onAuthClick={() => setAuthModalOpen(true)}
+              />
+              <AuthModal
+                open={authModalOpen}
+                onClose={() => setAuthModalOpen(false)}
+              />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/software" element={<Software />} />
+                <Route path="/smart-trade" element={<Navigate to="/software" replace />} />
+                <Route path="/hardware" element={<Navigate to="/products" replace />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/third-party-apps" element={<ThirdPartyApps />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/orders" element={<Profile initialTab={1} />} />
+                <Route path="/profile/settings" element={<Profile initialTab={2} />} />
+                <Route path="/profile/wishlist" element={<Profile initialTab={3} />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/search" element={<Navigate to="/products" replace />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/shipping" element={<Shipping />} />
+                <Route path="/returns" element={<Returns />} />
+                <Route path="/warranty" element={<Warranty />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/blog" element={<Blog />} />
+              </Routes>
+              <Footer toggleTheme={toggleThemeMode} />
+            </Router>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </ThemeProvider>

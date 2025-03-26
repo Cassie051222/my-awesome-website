@@ -18,6 +18,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  isAdmin: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -90,6 +91,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Check if the current user is an admin (has the specified email)
+  const isAdmin = () => {
+    if (!user) return false;
+    return user.email === 'vanheerdenjanco2005@gmail.com';
+  };
+
   const value = {
     user,
     loading,
@@ -97,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     logout,
     resetPassword,
+    isAdmin,
   };
 
   return (

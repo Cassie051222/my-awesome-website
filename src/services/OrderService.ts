@@ -7,7 +7,6 @@ import {
   Timestamp,
   orderBy,
   getDoc,
-  doc,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -42,9 +41,21 @@ const ORDERS_COLLECTION = 'orders';
 
 export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
   try {
+    if (!userId) {
+      console.error('[OrderService] Error: userId is empty or undefined');
+      throw new Error('User ID is required');
+    }
+    
     console.log('[OrderService] Getting orders for user ID:', userId);
     console.log('[OrderService] Using collection:', ORDERS_COLLECTION);
     
+    // Check Firestore db connection
+    if (!db) {
+      console.error('[OrderService] Error: Firestore db is undefined');
+      throw new Error('Firestore database is not initialized');
+    }
+    
+    console.log('[OrderService] Creating query...');
     const ordersQuery = query(
       collection(db, ORDERS_COLLECTION),
       where('userId', '==', userId),
@@ -90,8 +101,10 @@ export const getOrdersByUserId = async (userId: string): Promise<Order[]> => {
     
     console.log('[OrderService] Successfully processed orders:', orders.length);
     return orders;
-  } catch (error) {
+  } catch (error: any) {
     console.error('[OrderService] Error fetching orders:', error);
+    console.error('[OrderService] Error message:', error.message);
+    console.error('[OrderService] Error stack:', error.stack);
     throw error;
   }
 };

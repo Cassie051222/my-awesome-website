@@ -56,7 +56,7 @@ const About = () => {
     {
       title: 'Inventory & Supply Chain',
       icon: <InventoryIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
-      description: 'Gain real‐time insights into your stock levels, manage suppliers effectively, and streamline replenishment processes.'
+      description: 'Gain real‐time insights into your stock levels, manage suppliers and products easily, and streamline replenishment processes. Stay ahead with detailed analytics and Simple interface.'
     },
     {
       title: 'Customer & Sales',

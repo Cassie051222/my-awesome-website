@@ -19,6 +19,8 @@ import {
   ListItemIcon,
   Divider,
   Typography,
+  Tooltip,
+  alpha,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -28,6 +30,15 @@ import {
   Home,
   Computer,
   ContactMail,
+  FavoriteBorder,
+  PersonOutline as PersonOutlineIcon,
+  ReceiptLong as ReceiptLongIcon,
+  AdminPanelSettings as AdminPanelSettingsIcon,
+  Search,
+  Brightness4,
+  Brightness7,
+  Close,
+  Login,
 } from '@mui/icons-material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -41,23 +52,24 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const { items: cartItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [profileAnchorEl, setProfileAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+    setProfileAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleProfileMenuClose = () => {
+    setProfileAnchorEl(null);
   };
 
   const handleLogout = async () => {
     try {
       await logout();
-      handleMenuClose();
+      handleProfileMenuClose();
       navigate('/');
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -141,8 +153,14 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
           <List>
             <ListItem disablePadding>
               <ListItemButton component={RouterLink} to="/profile" onClick={() => setMobileMenuOpen(false)}>
-                <ListItemIcon><Person /></ListItemIcon>
+                <ListItemIcon><PersonOutlineIcon /></ListItemIcon>
                 <ListItemText primary="My Profile" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={RouterLink} to="/profile/wishlist" onClick={() => setMobileMenuOpen(false)}>
+                <ListItemIcon><FavoriteBorder /></ListItemIcon>
+                <ListItemText primary="Wishlist" />
               </ListItemButton>
             </ListItem>
             <Divider />
@@ -192,68 +210,102 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
           <ShoppingCart />
         </Badge>
       </IconButton>
-      {user ? (
-        <>
-          <IconButton
-            onClick={handleProfileMenuOpen}
-            size="small"
-            aria-label="Account options"
-            aria-controls="profile-menu"
-            aria-haspopup="true"
-            sx={{ ml: 2 }}
-          >
-            <Avatar
-              src={user.photoURL || undefined}
-              alt={user.displayName || 'User'}
-              sx={{ width: 32, height: 32 }}
+      <Tooltip title="Account settings">
+        <IconButton
+          onClick={handleProfileMenuOpen}
+          sx={{
+            ml: 1,
+            width: 40,
+            height: 40,
+            ...(Boolean(profileAnchorEl) && {
+              bgcolor: alpha(theme.palette.primary.main, 0.1)
+            })
+          }}
+        >
+          {user ? (
+            <Avatar 
+              src={user?.photoURL || undefined} 
+              alt={user?.displayName || 'User'} 
+              sx={{ 
+                width: 32, 
+                height: 32,
+                border: `2px solid ${theme.palette.primary.main}`
+              }} 
             />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            PaperProps={{
-              sx: {
-                mt: 1.5,
-                minWidth: 200,
-                background: theme.palette.mode === 'dark'
-                  ? 'linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)'
-                  : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
-              },
-            }}
-          >
+          ) : (
+            <Person />
+          )}
+        </IconButton>
+      </Tooltip>
+      <Menu
+        anchorEl={profileAnchorEl}
+        open={Boolean(profileAnchorEl)}
+        onClose={handleProfileMenuClose}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            minWidth: 200,
+            background: theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+          },
+        }}
+      >
+        {user ? (
+          <>
             <Box sx={{ p: 2 }}>
-              <Typography variant="subtitle1">{user.displayName}</Typography>
+              <Typography variant="subtitle1">{user?.displayName}</Typography>
               <Typography variant="body2" color="text.secondary">
-                {user.email}
+                {user?.email}
               </Typography>
             </Box>
             <Divider />
-            <MenuItem component={RouterLink} to="/profile" onClick={handleMenuClose}>
-              <Person sx={{ mr: 1 }} /> My Profile
+            <MenuItem onClick={() => { 
+              handleProfileMenuClose();
+              navigate('/profile');
+            }}>
+              <PersonOutlineIcon sx={{ mr: 2, fontSize: 20 }} />
+              My Profile
             </MenuItem>
-            <Divider />
+            <MenuItem onClick={() => {
+              handleProfileMenuClose();
+              navigate('/profile/orders');
+            }}>
+              <ReceiptLongIcon sx={{ mr: 2, fontSize: 20 }} />
+              My Orders
+            </MenuItem>
+            <MenuItem onClick={() => {
+              handleProfileMenuClose();
+              navigate('/profile/wishlist');
+            }}>
+              <FavoriteBorder sx={{ mr: 2, fontSize: 20 }} />
+              Wishlist
+            </MenuItem>
+            {isAdmin() && (
+              <MenuItem onClick={() => {
+                handleProfileMenuClose();
+                navigate('/admin');
+              }}>
+                <AdminPanelSettingsIcon sx={{ mr: 2, fontSize: 20 }} />
+                Admin
+              </MenuItem>
+            )}
+            <Divider sx={{ my: 0.5 }} />
             <MenuItem onClick={handleLogout}>
-              <Logout sx={{ mr: 1 }} /> Logout
+              <Logout sx={{ mr: 2, fontSize: 20 }} />
+              Logout
             </MenuItem>
-          </Menu>
-        </>
-      ) : (
-        <Button
-          variant="contained"
-          onClick={onAuthClick}
-          startIcon={<Person />}
-          sx={{
-            ml: 2,
-            background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
-            '&:hover': {
-              background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
-            },
-          }}
-        >
-          Login / Sign Up
-        </Button>
-      )}
+          </>
+        ) : (
+          <MenuItem onClick={() => {
+            handleProfileMenuClose();
+            onAuthClick();
+          }}>
+            <Login sx={{ mr: 2, fontSize: 20 }} />
+            Login / Sign Up
+          </MenuItem>
+        )}
+      </Menu>
     </Box>
   );
 

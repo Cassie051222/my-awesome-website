@@ -39,7 +39,7 @@ const Footer: React.FC<FooterProps> = ({ toggleTheme }) => {
             <Box sx={{ mt: 2 }}>
               <IconButton
                 component="a"
-                href="https://facebook.com"
+                href="https://www.facebook.com/CISystemsZA/"
                 target="_blank"
                 rel="noopener noreferrer"
                 color="inherit"
@@ -53,7 +53,7 @@ const Footer: React.FC<FooterProps> = ({ toggleTheme }) => {
               </IconButton>
               <IconButton
                 component="a"
-                href="https://twitter.com"
+                href="https://twitter.com/cisystemsza?s=11&t=r3w5cYcbeKSMXnwPK7XSUA"
                 target="_blank"
                 rel="noopener noreferrer"
                 color="inherit"
@@ -67,28 +67,32 @@ const Footer: React.FC<FooterProps> = ({ toggleTheme }) => {
               </IconButton>
               <IconButton
                 component="a"
-                href="https://instagram.com"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 color="inherit"
-                aria-label="Visit our Instagram page"
+                aria-label="Visit our Instagram page (coming soon)"
                 sx={{
                   transition: 'all 0.2s',
                   '&:hover': { color: '#FF6B00', transform: 'translateY(-3px)' },
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
                 }}
               >
                 <InstagramIcon />
               </IconButton>
               <IconButton
                 component="a"
-                href="https://linkedin.com"
+                href="#"
                 target="_blank"
                 rel="noopener noreferrer"
                 color="inherit"
-                aria-label="Visit our LinkedIn page"
+                aria-label="Visit our LinkedIn page (coming soon)"
                 sx={{
                   transition: 'all 0.2s',
                   '&:hover': { color: '#FF6B00', transform: 'translateY(-3px)' },
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
                 }}
               >
                 <LinkedInIcon />
@@ -168,32 +172,32 @@ const Footer: React.FC<FooterProps> = ({ toggleTheme }) => {
                 Contact Us
               </Link>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/faq"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
                 FAQ
               </Link>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/shipping"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
                 Shipping
               </Link>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/returns"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
                 Returns
               </Link>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/warranty"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
@@ -207,40 +211,32 @@ const Footer: React.FC<FooterProps> = ({ toggleTheme }) => {
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/about"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
                 About Us
               </Link>
               <Link
-                component="a"
-                href="#"
-                color="text.secondary"
-                sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
-              >
-                Careers
-              </Link>
-              <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/privacy-policy"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
                 Privacy Policy
               </Link>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/terms-of-service"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >
                 Terms of Service
               </Link>
               <Link
-                component="a"
-                href="#"
+                component={RouterLink}
+                to="/blog"
                 color="text.secondary"
                 sx={{ mb: 1, '&:hover': { color: 'primary.main' } }}
               >

@@ -33,6 +33,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 import { getProducts, Product } from '../services/ProductService';
 
@@ -40,6 +41,7 @@ const Products = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
@@ -98,6 +100,49 @@ const Products = () => {
       message: `${product.name} added to cart!`,
       severity: 'success',
     });
+  };
+
+  const handleAddToWishlist = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!user) {
+      setSnackbar({
+        open: true,
+        message: 'Please log in to add items to your wishlist',
+        severity: 'error',
+      });
+      return;
+    }
+    
+    // Convert price to display price with conversion rate
+    const displayPrice = product.price * 18.5;
+    
+    // If the product is already in the wishlist, remove it
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      setSnackbar({
+        open: true,
+        message: `${product.name} removed from wishlist`,
+        severity: 'success',
+      });
+    } else {
+      // Add to wishlist with the adjusted price
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: displayPrice,
+        imageUrl: product.imageUrl,
+        description: product.description,
+        rating: product.rating,
+        addedAt: new Date()
+      });
+      
+      setSnackbar({
+        open: true,
+        message: `${product.name} added to wishlist!`,
+        severity: 'success',
+      });
+    }
   };
 
   const handleCategoryChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -221,6 +266,24 @@ const Products = () => {
               />
             </Grid>
             <Grid item xs={12} md={4}>
+              <FormControl fullWidth>
+                <InputLabel id="brand-select-label">Brand</InputLabel>
+                <Select
+                  labelId="brand-select-label"
+                  value={brandFilter}
+                  label="Brand"
+                  onChange={handleBrandChange as any}
+                  sx={{ borderRadius: 2 }}
+                >
+                  {brands.map((brand) => (
+                    <MenuItem key={brand} value={brand}>
+                      {brand === 'all' ? 'All Brands' : brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={4}>
               <Box sx={{ width: '100%' }}>
                 <Typography gutterBottom>Price Range (ZAR)</Typography>
                 <Slider
@@ -244,24 +307,6 @@ const Products = () => {
                   <Typography variant="body2">R{priceRange[1].toLocaleString()}</Typography>
                 </Box>
               </Box>
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth>
-                <InputLabel id="brand-select-label">Brand</InputLabel>
-                <Select
-                  labelId="brand-select-label"
-                  value={brandFilter}
-                  label="Brand"
-                  onChange={handleBrandChange as any}
-                  sx={{ borderRadius: 2 }}
-                >
-                  {brands.map((brand) => (
-                    <MenuItem key={brand} value={brand}>
-                      {brand === 'all' ? 'All Brands' : brand}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
             </Grid>
           </Grid>
         </Card>
@@ -347,7 +392,7 @@ const Products = () => {
                             cursor: 'pointer',
                             position: 'relative',
                           }}
-                          onClick={() => navigate(`/product/${product.id}`)}
+                          onClick={() => navigate(`/products/${product.id}`)}
                         >
                           <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
                             <IconButton
@@ -357,12 +402,13 @@ const Products = () => {
                                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                 },
                               }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                console.log('Add to favorites');
-                              }}
+                              onClick={(e) => handleAddToWishlist(product, e)}
                             >
-                              <FavoriteBorderIcon sx={{ color: '#FF6B00' }} />
+                              {isInWishlist(product.id) ? (
+                                <FavoriteIcon sx={{ color: '#FF6B00' }} />
+                              ) : (
+                                <FavoriteBorderIcon sx={{ color: '#FF6B00' }} />
+                              )}
                             </IconButton>
                           </Box>
                           <CardMedia
