@@ -19,22 +19,39 @@ const ThirdPartyApps = () => {
 
   const thirdPartyApps = [
     {
-      title: 'Cloud Services',
-      description: 'Integration with major cloud providers and services',
-      image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      features: ['AWS Integration', 'Azure Services', 'Google Cloud'],
+      title: 'SQL Server Express',
+      description: 'Latest free edition of Microsoft SQL Server with enhanced features',
+      image: 'https://images.unsplash.com/photo-1607798748738-b15c40d33d57?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      features: ['Up to 10GB per database', 'Advanced security features', 'JSON support'],
+      downloadLink: 'https://go.microsoft.com/fwlink/p/?linkid=2216019&clcid=0x409&culture=en-us&country=us',
     },
     {
-      title: 'Business Tools',
-      description: 'Essential business applications and productivity tools',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      features: ['Office 365', 'Slack Integration', 'Project Management'],
+      title: 'SQL Server Management Studio',
+      description: 'Complete database management solution for SQL Server',
+      image: 'https://images.unsplash.com/photo-1550439062-609e1531270e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      features: ['Enhanced Query Editor', 'Database Diagrams', 'Performance Dashboards'],
+      downloadLink: 'https://aka.ms/ssmsfullsetup',
     },
     {
-      title: 'Security Solutions',
-      description: 'Advanced security and compliance applications',
-      image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-      features: ['Antivirus', 'VPN Services', 'Security Monitoring'],
+      title: 'TeamViewer',
+      description: 'Next-generation remote access and support platform',
+      image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      features: ['Augmented Reality Support', 'End-to-End Encryption', 'Cross-Platform Remote Access'],
+      downloadLink: 'https://download.teamviewer.com/download/TeamViewer_Setup_x64.exe',
+    },
+    {
+      title: 'AnyDesk',
+      description: 'Fast and secure remote desktop software for seamless remote access',
+      image: 'https://images.unsplash.com/photo-1586880244406-556ebe35f282?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      features: ['Ultra-low latency', 'Banking-standard TLS 1.2 encryption', 'Remote printing support'],
+      downloadLink: 'https://anydesk.com/en/downloads/thank-you?dv=win_exe',
+    },
+    {
+      title: 'WinRAR',
+      description: 'Powerful archive manager for compression, encryption, and backup',
+      image: 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
+      features: ['Robust file compression', 'Password protection with AES-256', 'Recovery record feature'],
+      downloadLink: 'https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-711.exe',
     },
   ];
 
@@ -43,7 +60,9 @@ const ThirdPartyApps = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #121212 0%, #1E1E1E 100%)',
+          background: theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #121212 0%, #1E1E1E 100%)'
+            : 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
           position: 'relative',
           overflow: 'hidden',
           py: 8,
@@ -55,10 +74,10 @@ const ThirdPartyApps = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'url(https://images.unsplash.com/photo-1544197150-b99a580bb7a8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80)',
+            background: 'url(https://images.unsplash.com/photo-1607798748738-b15c40d33d57?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.1,
+            opacity: theme.palette.mode === 'dark' ? 0.1 : 0.05,
             zIndex: 0,
           },
         }}
@@ -73,7 +92,7 @@ const ThirdPartyApps = () => {
               variant="h1"
               align="center"
               sx={{
-                color: 'white',
+                color: theme.palette.mode === 'dark' ? 'white' : '#121212',
                 fontWeight: 'bold',
                 mb: 3,
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -82,14 +101,14 @@ const ThirdPartyApps = () => {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Third Party Apps
+              Essential Third Party Apps
             </Typography>
             <Typography
               variant="h5"
               align="center"
-              sx={{ color: 'text.secondary', maxWidth: '800px', mx: 'auto' }}
+              sx={{ color: 'text.primary', maxWidth: '800px', mx: 'auto' }}
             >
-              Seamless integration with popular third-party applications
+              Complete your toolkit with these powerful software solutions
             </Typography>
           </motion.div>
         </Container>
@@ -99,11 +118,11 @@ const ThirdPartyApps = () => {
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           {thirdPartyApps.map((app, index) => (
-            <Grid item xs={12} md={4} key={app.title}>
+            <Grid item xs={12} sm={6} lg={4} key={app.title}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <Card
                   sx={{
@@ -150,20 +169,39 @@ const ThirdPartyApps = () => {
                         </Typography>
                       ))}
                     </Box>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      sx={{
-                        background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
-                        '&:hover': {
-                          background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
-                        },
-                      }}
-                      onClick={() => navigate('/contact')}
-                    >
-                      Get Started
-                    </Button>
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        component="a"
+                        href={app.downloadLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          background: 'linear-gradient(45deg, #2196F3, #21CBF3)',
+                          '&:hover': {
+                            background: 'linear-gradient(45deg, #21CBF3, #2196F3)',
+                          },
+                        }}
+                      >
+                        Download Now
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        sx={{
+                          background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
+                          '&:hover': {
+                            background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
+                          },
+                        }}
+                        onClick={() => navigate('/contact')}
+                      >
+                        Get Support
+                      </Button>
+                    </Box>
                   </CardContent>
                 </Card>
               </motion.div>

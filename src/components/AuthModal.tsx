@@ -6,136 +6,154 @@ import {
   DialogActions,
   Button,
   TextField,
-  Tabs,
-  Tab,
   Box,
-  IconButton,
   Typography,
-  InputAdornment,
-  Snackbar,
+  Tab,
+  Tabs,
+  useTheme,
   Alert,
+  CircularProgress,
 } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import CloseIcon from '@mui/icons-material/Close';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import EmailIcon from '@mui/icons-material/Email';
-import LockIcon from '@mui/icons-material/Lock';
-import PersonIcon from '@mui/icons-material/Person';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const AuthModal = ({ open, onClose }: AuthModalProps) => {
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`auth-tabpanel-${index}`}
+      aria-labelledby={`auth-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ pt: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
+  const theme = useTheme();
+  const { signIn, signUp } = useAuth();
   const [tabValue, setTabValue] = useState(0);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
+  const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const [signupData, setSignupData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
+    username: '',
   });
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error',
-  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+    setError('');
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoginData({
+      ...loginData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSignupData({
+      ...signupData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (tabValue === 1 && formData.password !== formData.confirmPassword) {
-      setSnackbar({
-        open: true,
-        message: 'Passwords do not match!',
-        severity: 'error',
-      });
+    setError('');
+    setLoading(true);
+    
+    try {
+      await signIn(loginData.email, loginData.password);
+      onClose();
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setError(error.message || 'Failed to sign in');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    if (signupData.password !== signupData.confirmPassword) {
+      setError('Passwords do not match');
       return;
     }
-    // Here you would typically handle the authentication
-    console.log('Form submitted:', formData);
-    setSnackbar({
-      open: true,
-      message: tabValue === 0 ? 'Successfully logged in!' : 'Account created successfully!',
-      severity: 'success',
-    });
-    onClose();
+    
+    setLoading(true);
+    
+    try {
+      await signUp(signupData.email, signupData.password, signupData.username);
+      onClose();
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      setError(error.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Dialog
-      open={open}
+    <Dialog 
+      open={open} 
       onClose={onClose}
-      maxWidth="sm"
-      fullWidth
       PaperProps={{
         sx: {
-          background: 'rgba(18, 18, 18, 0.95)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 107, 0, 0.1)',
-          borderRadius: '16px',
-        },
+          width: '100%',
+          maxWidth: 450,
+          borderRadius: 2,
+        }
       }}
     >
       <DialogTitle sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        borderBottom: '1px solid rgba(255, 107, 0, 0.1)',
-        pb: 2,
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)' 
+          : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        textAlign: 'center',
+        pt: 3 
       }}>
-        <Typography variant="h5" sx={{ 
-          fontWeight: 'bold',
-          background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}>
-          {tabValue === 0 ? 'Welcome Back' : 'Create Account'}
+        <Typography variant="h5" fontWeight="bold">
+          Welcome to Smart-Trade
         </Typography>
-        <IconButton
-          onClick={onClose}
-          sx={{
-            color: '#FF6B00',
-            '&:hover': {
-              background: 'rgba(255, 107, 0, 0.1)',
-            },
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
       </DialogTitle>
-
-      <DialogContent sx={{ pt: 3 }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
+      
+      <DialogContent sx={{ 
+        pt: 2,
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)' 
+          : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+      }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={handleTabChange} 
+          variant="fullWidth"
           sx={{
-            mb: 3,
             '& .MuiTabs-indicator': {
               backgroundColor: '#FF6B00',
-              height: 3,
             },
             '& .MuiTab-root': {
-              color: 'text.secondary',
+              color: theme.palette.text.primary,
               '&.Mui-selected': {
                 color: '#FF6B00',
                 fontWeight: 'bold',
@@ -146,220 +164,157 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
           <Tab label="Login" />
           <Tab label="Sign Up" />
         </Tabs>
-
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {tabValue === 1 && (
-              <TextField
-                fullWidth
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required={tabValue === 1}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon sx={{ color: '#FF6B00' }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: 'rgba(255, 107, 0, 0.3)',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(255, 107, 0, 0.5)',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#FF6B00',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    '&.Mui-focused': {
-                      color: '#FF6B00',
-                    },
-                  },
-                }}
-              />
-            )}
-
+        
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+        
+        <TabPanel value={tabValue} index={0}>
+          <form onSubmit={handleLogin}>
             <TextField
-              fullWidth
               label="Email"
-              name="email"
               type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon sx={{ color: '#FF6B00' }} />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 107, 0, 0.3)',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(255, 107, 0, 0.5)',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#FF6B00',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: 'text.secondary',
-                  '&.Mui-focused': {
-                    color: '#FF6B00',
-                  },
-                },
-              }}
-            />
-
-            <TextField
+              name="email"
+              value={loginData.email}
+              onChange={handleLoginChange}
               fullWidth
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleChange}
+              margin="normal"
               required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockIcon sx={{ color: '#FF6B00' }} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ color: '#FF6B00' }}
-                    >
-                      {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: 'rgba(255, 107, 0, 0.3)',
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(255, 107, 0, 0.5)',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#FF6B00',
-                  },
-                },
-                '& .MuiInputLabel-root': {
-                  color: 'text.secondary',
-                  '&.Mui-focused': {
-                    color: '#FF6B00',
-                  },
-                },
+              InputLabelProps={{
+                sx: { color: theme.palette.text.secondary }
               }}
             />
-
-            {tabValue === 1 && (
-              <TextField
+            <TextField
+              label="Password"
+              type="password"
+              name="password"
+              value={loginData.password}
+              onChange={handleLoginChange}
+              fullWidth
+              margin="normal"
+              required
+              InputLabelProps={{
+                sx: { color: theme.palette.text.secondary }
+              }}
+            />
+            <Box sx={{ mt: 3, mb: 1 }}>
+              <Button
+                type="submit"
+                variant="contained"
                 fullWidth
-                label="Confirm Password"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LockIcon sx={{ color: '#FF6B00' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        edge="end"
-                        sx={{ color: '#FF6B00' }}
-                      >
-                        {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
+                disabled={loading}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: 'rgba(255, 107, 0, 0.3)',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(255, 107, 0, 0.5)',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#FF6B00',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    '&.Mui-focused': {
-                      color: '#FF6B00',
-                    },
+                  py: 1.5,
+                  background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
                   },
                 }}
-              />
-            )}
-          </Box>
-        </form>
+              >
+                {loading ? 'Signing In...' : 'Sign In'}
+              </Button>
+            </Box>
+          </form>
+        </TabPanel>
+        
+        <TabPanel value={tabValue} index={1}>
+          <form onSubmit={handleSignup}>
+            <TextField
+              label="Email"
+              type="email"
+              name="email"
+              value={signupData.email}
+              onChange={handleSignupChange}
+              fullWidth
+              margin="normal"
+              required
+              InputLabelProps={{
+                sx: { color: theme.palette.text.secondary }
+              }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              name="password"
+              value={signupData.password}
+              onChange={handleSignupChange}
+              fullWidth
+              margin="normal"
+              required
+              InputLabelProps={{
+                sx: { color: theme.palette.text.secondary }
+              }}
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              value={signupData.confirmPassword}
+              onChange={handleSignupChange}
+              fullWidth
+              margin="normal"
+              required
+              InputLabelProps={{
+                sx: { color: theme.palette.text.secondary }
+              }}
+            />
+            <TextField
+              label="Username"
+              type="text"
+              name="username"
+              value={signupData.username}
+              onChange={handleSignupChange}
+              fullWidth
+              margin="normal"
+              required
+              InputLabelProps={{
+                sx: { color: theme.palette.text.secondary }
+              }}
+            />
+            <Box sx={{ mt: 3, mb: 1 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
+                  },
+                }}
+              >
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </Button>
+            </Box>
+          </form>
+        </TabPanel>
       </DialogContent>
-
-      <DialogActions sx={{ p: 3, pt: 0 }}>
-        <Button
+      
+      <DialogActions sx={{ 
+        p: 3, 
+        background: theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%)' 
+          : 'linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%)',
+        justifyContent: 'center'
+      }}>
+        <Button 
           onClick={onClose}
-          sx={{
-            color: 'text.secondary',
+          sx={{ 
+            color: theme.palette.text.secondary,
             '&:hover': {
-              background: 'rgba(255, 107, 0, 0.1)',
-            },
+              backgroundColor: theme.palette.mode === 'dark' 
+                ? 'rgba(255, 255, 255, 0.08)' 
+                : 'rgba(0, 0, 0, 0.04)',
+            }
           }}
         >
           Cancel
         </Button>
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          sx={{
-            background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
-            '&:hover': {
-              background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
-            },
-          }}
-        >
-          {tabValue === 0 ? 'Login' : 'Sign Up'}
-        </Button>
       </DialogActions>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Dialog>
   );
 };

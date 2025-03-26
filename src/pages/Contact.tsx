@@ -11,6 +11,7 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  useTheme,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import EmailIcon from '@mui/icons-material/Email';
@@ -18,6 +19,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 const Contact = () => {
+  const theme = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -53,20 +55,20 @@ const Contact = () => {
     {
       icon: <EmailIcon sx={{ fontSize: 40, color: '#FF6B00' }} />,
       title: 'Email',
-      content: 'contact@yourcompany.com',
-      link: 'mailto:contact@yourcompany.com',
+      content: 'office@smart-trade.biz',
+      link: 'mailto:office@smart-trade.biz',
     },
     {
       icon: <PhoneIcon sx={{ fontSize: 40, color: '#FF6B00' }} />,
       title: 'Phone',
-      content: '+1 (555) 123-4567',
-      link: 'tel:+15551234567',
+      content: '083 334 1547',
+      link: 'tel:+27833341547',
     },
     {
       icon: <LocationOnIcon sx={{ fontSize: 40, color: '#FF6B00' }} />,
       title: 'Address',
-      content: '123 Business Street, Suite 100, City, Country',
-      link: 'https://maps.google.com',
+      content: '35 Ellenburger Street, Wilgehof, Bloemfontein, Freestate, 9301',
+      link: 'https://maps.google.com/?q=35+Ellenburger+Street,+Wilgehof,+Bloemfontein,+9301,+South+Africa',
     },
   ];
 
@@ -75,7 +77,9 @@ const Contact = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #121212 0%, #1E1E1E 100%)',
+          background: theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #121212 0%, #1E1E1E 100%)'
+            : 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
           position: 'relative',
           overflow: 'hidden',
           py: 8,
@@ -90,7 +94,7 @@ const Contact = () => {
             background: 'url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.1,
+            opacity: theme.palette.mode === 'dark' ? 0.1 : 0.05,
             zIndex: 0,
           },
         }}
@@ -105,7 +109,7 @@ const Contact = () => {
               variant="h1"
               align="center"
               sx={{
-                color: 'white',
+                color: theme.palette.mode === 'dark' ? 'white' : '#121212',
                 fontWeight: 'bold',
                 mb: 3,
                 fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -119,7 +123,7 @@ const Contact = () => {
             <Typography
               variant="h5"
               align="center"
-              sx={{ color: 'text.secondary', maxWidth: '800px', mx: 'auto' }}
+              sx={{ color: 'text.primary', maxWidth: '800px', mx: 'auto' }}
             >
               Get in touch with us for any questions or inquiries
             </Typography>
