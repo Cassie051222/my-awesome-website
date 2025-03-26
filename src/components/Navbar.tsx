@@ -157,9 +157,9 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
           key={item.text}
           component={RouterLink}
           to={item.path}
-          color="inherit"
           sx={{
             fontWeight: 'medium',
+            color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
             '&:hover': {
               color: '#FF6B00',
             },
@@ -171,10 +171,10 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
       <IconButton
         component={RouterLink}
         to="/cart"
-        color="inherit"
         aria-label={`View shopping cart with ${cartItems.length} item${cartItems.length !== 1 ? 's' : ''}`}
         sx={{ 
           ml: 1,
+          color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333',
           '&:hover': {
             color: '#FF6B00',
           },
@@ -276,10 +276,10 @@ const Navbar: React.FC<NavbarProps> = ({ onAuthClick }) => {
         {isMobile ? (
           <>
             <IconButton
-              color="inherit"
               edge="end"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open navigation menu"
+              sx={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#333333' }}
             >
               <MenuIcon />
             </IconButton>

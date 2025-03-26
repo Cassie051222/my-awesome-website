@@ -22,17 +22,12 @@ const App: React.FC = () => {
   const [themeMode, setThemeMode] = useState<PaletteMode>('light');
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  // Load saved theme preference from localStorage
+  // Load theme from browser preference
   useEffect(() => {
-    const savedTheme = localStorage.getItem('themeMode') as PaletteMode | null;
-    if (savedTheme) {
-      setThemeMode(savedTheme);
-    } else {
-      // Check system preference
-      const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setThemeMode(prefersDarkMode ? 'dark' : 'light');
-    }
-
+    // Check system preference
+    const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setThemeMode(prefersDarkMode ? 'dark' : 'light');
+    
     // Seed products on initial load
     seedProducts().catch(console.error);
   }, []);
@@ -40,20 +35,30 @@ const App: React.FC = () => {
   // Listen for system theme changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Set initial theme based on system preference
+    setThemeMode(mediaQuery.matches ? 'dark' : 'light');
+    
+    // Handle theme changes
     const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem('themeMode')) {
-        setThemeMode(e.matches ? 'dark' : 'light');
-      }
+      setThemeMode(e.matches ? 'dark' : 'light');
+      console.log("Theme changed to:", e.matches ? 'dark' : 'light');
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // For modern browsers
+    try {
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } catch (e) {
+      // For older browsers (Safari)
+      mediaQuery.addListener(handleChange);
+      return () => mediaQuery.removeListener(handleChange);
+    }
   }, []);
 
+  // Simple toggle function for the footer button
   const toggleThemeMode = () => {
-    const newMode = themeMode === 'light' ? 'dark' : 'light';
-    setThemeMode(newMode);
-    localStorage.setItem('themeMode', newMode);
+    setThemeMode(prevMode => prevMode === 'light' ? 'dark' : 'light');
   };
 
   const theme = createTheme({

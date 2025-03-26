@@ -132,71 +132,114 @@ const Contact = () => {
       </Box>
 
       <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          {/* Contact Information */}
-          <Grid item xs={12} md={4}>
-            {contactInfo.map((info, index) => (
-              <motion.div
-                key={info.title}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                <Card
-                  sx={{
-                    mb: 2,
-                    transition: 'all 0.3s ease-in-out',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 32px rgba(255, 107, 0, 0.2)',
-                      border: '1px solid rgba(255, 107, 0, 0.3)',
-                    },
-                  }}
-                >
-                  <CardContent sx={{ textAlign: 'center' }}>
-                    {info.icon}
-                    <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-                      {info.title}
-                    </Typography>
-                    <Typography
-                      component="a"
-                      href={info.link}
-                      sx={{
-                        color: 'text.secondary',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          color: '#FF6B00',
-                        },
-                      }}
-                    >
-                      {info.content}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </Grid>
-
-          {/* Contact Form */}
-          <Grid item xs={12} md={8}>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+        <Card 
+          sx={{
+            borderRadius: 2,
+            overflow: 'hidden',
+            boxShadow: '0 8px 40px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.3s ease-in-out',
+            '&:hover': {
+              boxShadow: '0 12px 48px rgba(255, 107, 0, 0.2)',
+            },
+          }}
+        >
+          <Grid container>
+            {/* Contact Information - Left sidebar */}
+            <Grid 
+              item 
+              xs={12} 
+              md={4} 
+              sx={{ 
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 107, 0, 0.15)' : 'rgba(255, 107, 0, 0.05)',
+                p: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                color: theme.palette.text.primary,
+              }}
             >
-              <Card
-                sx={{
-                  height: '100%',
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    boxShadow: '0 8px 32px rgba(255, 107, 0, 0.2)',
-                    border: '1px solid rgba(255, 107, 0, 0.3)',
-                  },
-                }}
-              >
-                <CardContent>
+              <Box sx={{ mb: 6 }}>
+                <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#FF6B00' }}>
+                  Contact Information
+                </Typography>
+                <Typography variant="body1" sx={{ mb: 4, color: theme.palette.text.secondary }}>
+                  Reach out to us with any questions or inquiries. We're here to help!
+                </Typography>
+              </Box>
+
+              {contactInfo.map((info, index) => (
+                <motion.div
+                  key={info.title}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
+                >
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    mb: 4,
+                    '&:hover a': {
+                      color: '#FF6B00',
+                    },
+                  }}>
+                    <Box sx={{ 
+                      mr: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 50,
+                      height: 50,
+                      borderRadius: '50%',
+                      bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.1)',
+                    }}>
+                      {info.icon}
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 'medium', mb: 0.5 }}>
+                        {info.title}
+                      </Typography>
+                      <Typography
+                        component="a"
+                        href={info.link}
+                        sx={{
+                          color: 'text.secondary',
+                          textDecoration: 'none',
+                          transition: 'color 0.2s',
+                        }}
+                      >
+                        {info.content}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </motion.div>
+              ))}
+            </Grid>
+
+            {/* Contact Form - Right side */}
+            <Grid 
+              item 
+              xs={12} 
+              md={8}
+              sx={{
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(30, 30, 30, 0.3)' : '#ffffff',
+                color: theme.palette.text.primary,
+              }}
+            >
+              <Box sx={{ p: 4 }}>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
+                    Send us a message
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 4, color: 'text.secondary' }}>
+                    Fill out the form below and we'll get back to you as soon as possible.
+                  </Typography>
+
                   <form onSubmit={handleSubmit}>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={3}>
                       <Grid item xs={12} sm={6}>
                         <TextField
                           fullWidth
@@ -291,7 +334,7 @@ const Contact = () => {
                           label="Message"
                           name="message"
                           multiline
-                          rows={4}
+                          rows={5}
                           value={formData.message}
                           onChange={handleChange}
                           required
@@ -320,8 +363,10 @@ const Contact = () => {
                         <Button
                           type="submit"
                           variant="contained"
-                          fullWidth
+                          size="large"
                           sx={{
+                            px: 4,
+                            py: 1.5,
                             background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
                             '&:hover': {
                               background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
@@ -333,11 +378,11 @@ const Contact = () => {
                       </Grid>
                     </Grid>
                   </form>
-                </CardContent>
-              </Card>
-            </motion.div>
+                </motion.div>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
+        </Card>
       </Container>
 
       <Snackbar
