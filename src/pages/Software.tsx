@@ -1202,7 +1202,6 @@ const Software = () => {
                       {/* Bottom Tabs */}
                       <Box sx={{ 
                         display: 'flex',
-                        borderTop: '1px solid #ccc',
                         backgroundColor: 'transparent',
                         position: 'relative',
                         zIndex: 2
@@ -1309,6 +1308,16 @@ const Software = () => {
                           Options
                         </Box>
                       </Box>
+                      
+                      {/* Horizontal ribbon line */}
+                      <Box sx={{ 
+                        height: '3px', 
+                        backgroundColor: '#1976d2', 
+                        width: '100%', 
+                        position: 'relative',
+                        zIndex: 3,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      }}></Box>
                       
                       {/* Payment Options and Details Container */}
                       <Box sx={{ 
