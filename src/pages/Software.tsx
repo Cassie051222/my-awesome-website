@@ -44,6 +44,13 @@ import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ComputerIcon from '@mui/icons-material/Computer';
+import StorageIcon from '@mui/icons-material/Storage';
+import SpeedIcon from '@mui/icons-material/Speed';
+import SecurityIcon from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SupportIcon from '@mui/icons-material/Support';
 
 const Software = () => {
   const theme = useTheme();
@@ -212,328 +219,11 @@ const Software = () => {
         height: '100%', 
         display: 'flex', 
         flexDirection: 'column',
-        backgroundColor: '#f5f5f5'
+        backgroundColor: '#ffffff',
+        position: 'relative'
       }}>
-        {/* Invoicing Header */}
-        <Box sx={{ 
-          display: 'flex',
-          justifyContent: 'space-between',
-          padding: '10px 20px',
-          backgroundColor: '#f5f5f5',
-          borderBottom: '1px solid #ddd'
-        }}>
-          {/* Left side - Logo */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box 
-              component="img" 
-              src="/images/logo/SmartTradeBackgroundLogo.jpg"
-              sx={{ 
-                height: '40px',
-                width: 'auto',
-                marginRight: '10px'
-              }}
-            />
-            <Box>
-              <Typography sx={{ fontSize: '0.75rem', color: '#000', lineHeight: 1.2 }}>
-                www.smart-trade.biz
-              </Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: '#000', lineHeight: 1.2 }}>
-                info@smart-trade.biz
-              </Typography>
-            </Box>
-          </Box>
-          
-          {/* Right side - Invoicing Title */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h6" sx={{ color: '#000', fontWeight: 'normal' }}>
-              Invoicing (Touch Mode)
-            </Typography>
-          </Box>
-        </Box>
-        
-        {/* Table Content */}
-        <TableContainer component={Paper} sx={{ flex: 1, boxShadow: 'none' }}>
-          <Table sx={{ minWidth: 650 }} size="small">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f0f0f0' }}>
-                <TableCell sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Product Code</TableCell>
-                <TableCell sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Description</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Quantity</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Quantity To Deliver</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>List Price Inclusive</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Discount %</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Discounted Price Inclusive</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Line Total Inclusive</TableCell>
-                <TableCell align="right" sx={{ color: '#000', fontWeight: 500, fontSize: '0.8rem' }}>Volume Calculation Item</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {invoiceItems.map((row, index) => (
-                <TableRow
-                  key={index}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell sx={{ color: '#000', fontSize: '0.8rem' }}>{row.code}</TableCell>
-                  <TableCell sx={{ color: '#000', fontSize: '0.8rem' }}>{row.description}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.quantity.toFixed(2)}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.qtyToDeliver.toFixed(2)}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.listPrice.toFixed(2)}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.discount.toFixed(2)}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.discountedPrice.toFixed(2)}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.lineTotal.toFixed(2)}</TableCell>
-                  <TableCell align="right" sx={{ color: '#000', fontSize: '0.8rem' }}>{row.volumeCalc}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        
-        {/* Bottom Section */}
-        <Box sx={{ backgroundColor: '#e6f2ff', padding: '10px', display: 'flex', justifyContent: 'space-between' }}>
-          {/* Current Item */}
-          <Box sx={{ flex: 1 }}>
-            <Typography sx={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#000' }}>
-              Cheese Pizza Pie
-            </Typography>
-          </Box>
-          
-          {/* Totals */}
-          <Box sx={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '200px' }}>
-              <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#000' }}>Sub Total:</Typography>
-              <Typography sx={{ fontSize: '0.8rem', color: '#000' }}>191.39</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '200px' }}>
-              <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#000' }}>VAT:</Typography>
-              <Typography sx={{ fontSize: '0.8rem', color: '#000' }}>28.70</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '200px' }}>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'red' }}>Total:</Typography>
-              <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'red' }}>220.09</Typography>
-            </Box>
-          </Box>
-        </Box>
-        
-        {/* Button Pads */}
-        <Box sx={{ 
-          display: 'flex', 
-          padding: '10px',
-          backgroundColor: '#f0f0f0',
-          borderTop: '1px solid #ddd'
-        }}>
-          {/* Product Category Buttons */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '5px', flex: 3 }}>
-            {['Old School Pizza\'s', 'Gourmet Pizza\'s', 'Create Own - Any 2 / 4 Pizza', 'Burgers', 'Vetkoek', 'Ciabatta', 'Toasties', 'Pizza Pies', 'Pizza Rolls', 'Pasta', 'Chicken', 'Salad\'s', 'Chips', 'Beverages', 'Wood Fired Bread', 'Other', 'Toets', 'Drank'].map((category) => (
-              <Button 
-                key={category}
-                variant="contained"
-                sx={{ 
-                  backgroundColor: '#f5f5f5', 
-                  color: '#000', 
-                  fontSize: '0.75rem',
-                  height: '50px',
-                  flex: '1 0 15%',
-                  border: '1px solid #ddd',
-                  '&:hover': { backgroundColor: '#e0e0e0' }
-                }}
-              >
-                {category}
-              </Button>
-            ))}
-          </Box>
-          
-          {/* Navigation and Keypad */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
-            {/* Navigation Buttons */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <Button 
-                variant="contained"
-                sx={{ 
-                  backgroundColor: '#0077be', 
-                  color: 'white', 
-                  fontSize: '0.8rem',
-                  '&:hover': { backgroundColor: '#005fa3' } 
-                }}
-              >
-                Page Up
-              </Button>
-              <Button 
-                variant="contained"
-                sx={{ 
-                  backgroundColor: '#0077be', 
-                  color: 'white', 
-                  fontSize: '0.8rem',
-                  '&:hover': { backgroundColor: '#005fa3' } 
-                }}
-              >
-                Page Down
-              </Button>
-              <Button 
-                variant="contained"
-                sx={{ 
-                  backgroundColor: '#0077be', 
-                  color: 'white', 
-                  fontSize: '0.8rem',
-                  '&:hover': { backgroundColor: '#005fa3' } 
-                }}
-              >
-                Back
-              </Button>
-            </Box>
-            
-            {/* Numeric Keypad */}
-            <Box sx={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(3, 1fr)', 
-              gap: '5px',
-              marginTop: 'auto'
-            }}>
-              {['7', '8', '9', '4', '5', '6', '1', '2', '3', 'Clr', '0', '.', 'X', 'Enter'].map((key, index) => (
-                <Button 
-                  key={key}
-                  variant="contained"
-                  sx={{ 
-                    backgroundColor: key === 'Enter' ? '#4caf50' : key === 'X' ? '#f44336' : '#f5f5f5', 
-                    color: key === 'Enter' || key === 'X' ? 'white' : '#000', 
-                    fontSize: '0.8rem',
-                    gridColumn: key === 'Enter' ? 'span 2' : 'span 1',
-                    '&:hover': { 
-                      backgroundColor: key === 'Enter' ? '#388e3c' : key === 'X' ? '#d32f2f' : '#e0e0e0'
-                    } 
-                  }}
-                >
-                  {key}
-                </Button>
-              ))}
-            </Box>
-          </Box>
-          
-          {/* Function Buttons */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#4caf50', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#388e3c' } 
-              }}
-            >
-              Cash
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#2196f3', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#1976d2' } 
-              }}
-            >
-              Card
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#9c27b0', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#7b1fa2' } 
-              }}
-            >
-              Customer
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#ff9800', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#f57c00' } 
-              }}
-            >
-              E.F.T.
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#607d8b', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#455a64' } 
-              }}
-            >
-              Account
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#3f51b5', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#303f9f' } 
-              }}
-            >
-              Lookup
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#009688', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#00796b' } 
-              }}
-            >
-              Split Tender
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#cddc39', 
-                color: 'black', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#afb42b' } 
-              }}
-            >
-              Lay-By
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#8bc34a', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#689f38' } 
-              }}
-            >
-              Options
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#ffc107', 
-                color: 'black', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#ffa000' } 
-              }}
-            >
-              Other
-            </Button>
-            <Button 
-              variant="contained"
-              sx={{ 
-                backgroundColor: '#f44336', 
-                color: 'white', 
-                fontSize: '0.8rem',
-                '&:hover': { backgroundColor: '#d32f2f' } 
-              }}
-              onClick={() => setShowInvoicingScreen(false)}
-            >
-              Log-Out
-            </Button>
-          </Box>
-        </Box>
+        {/* This is an empty implementation - we no longer use this function directly */}
+        {/* The actual implementation is inside the main component */}
       </Box>
     );
   };
@@ -647,8 +337,8 @@ const Software = () => {
                 borderBottom: '1px solid #ccc'
               }}>
                 <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 500, color: '#000000' }}>
-                  Smart-Trade Retail Management - Version 1.2.0.0.181 | SmartTrade_Tests | Main Location | Terminal 2
-                </Typography>
+                  Smart-Trade Retail Management - Version 1.2.0.0.181 | SmartTrade | Main Location | Terminal 2
+              </Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Box sx={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#000000', fontWeight: 'bold' }}>−</Box>
                   <Box sx={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#000000', fontWeight: 'bold' }}>□</Box>
@@ -657,8 +347,8 @@ const Software = () => {
               </Box>
               
               {/* Menu Bar */}
-              <Box sx={{ 
-                display: 'flex', 
+                  <Box sx={{ 
+                    display: 'flex',
                 backgroundColor: '#00bcd4', 
                 color: '#000000',
                 position: 'relative',
@@ -667,7 +357,7 @@ const Software = () => {
                   fontSize: '0.7rem',
                   cursor: 'pointer',
                   fontWeight: 500,
-                  '&:hover': {
+                    '&:hover': {
                     backgroundColor: 'rgba(255,255,255,0.1)'
                   }
                 }
@@ -702,14 +392,14 @@ const Software = () => {
                           textAlign: 'left',
                           fontWeight: 'normal',
                           '&:hover': { backgroundColor: '#f0f0f0' },
-                          cursor: 'pointer'
-                        }}
+                    cursor: 'pointer'
+                  }}
                         onClick={() => handleMenuItemClick('Invoicing')}
                       >
                         Invoicing
                       </Box>
                       <Box 
-                        sx={{ 
+                      sx={{
                           padding: '4px 10px', 
                           fontSize: '0.65rem', 
                           color: '#000000',
@@ -731,7 +421,7 @@ const Software = () => {
                         }}
                       >
                         Quotations Management
-                      </Box>
+                  </Box>
                       <Box 
                         sx={{ 
                           padding: '4px 10px', 
@@ -1243,11 +933,31 @@ const Software = () => {
                 <Box>Settings</Box>
                 <Box>Window</Box>
                 <Box>Help</Box>
+                {showInvoicingScreen && (
+                  <Box 
+                    sx={{ 
+                      marginLeft: 'auto',
+                      width: '24px', 
+                    height: '100%',
+                      backgroundColor: '#00bcd4',
+                    display: 'flex',
+                    alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                    '&:hover': {
+                        backgroundColor: '#008ba3'
+                      }
+                    }}
+                    onClick={() => setShowInvoicingScreen(false)}
+                  >
+                    <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: '#ffffff' }}>×</Typography>
+                  </Box>
+                )}
               </Box>
               
               {/* Toolbar */}
               <Box sx={{ 
-                display: 'flex', 
+                display: showInvoicingScreen ? 'none' : 'flex', // Hide when invoicing screen is active
                 backgroundColor: '#e0e0e0', 
                 borderBottom: '1px solid #ddd',
                 padding: '4px 0'
@@ -1275,7 +985,7 @@ const Software = () => {
                     cursor: 'pointer',
                     color: '#777777',
                     fontWeight: 500,
-                    '&:hover': {
+                        '&:hover': {
                       backgroundColor: 'rgba(0,0,0,0.05)'
                     }
                   }}>
@@ -1292,7 +1002,7 @@ const Software = () => {
                       }}
                     >
                       {item.icon}
-                    </Box>
+                  </Box>
                     {item.name}
                   </Box>
                 ))}
@@ -1324,18 +1034,331 @@ const Software = () => {
               </Box>
               
               {/* Main Content Area */}
-              <Box sx={{ 
+                  <Box sx={{ 
                 flexGrow: 1, 
                 display: 'flex', 
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
                 position: 'relative',
-                padding: 2,
+                padding: 0,
                 backgroundColor: '#ffffff'
               }}>
                 {showInvoicingScreen ? (
-                  renderInvoicingInterface()
+                  <Box sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: '#ffffff'
+                  }}>
+                    {/* Invoicing screen content without duplicating menu and chrome */}
+                    <Box sx={{ 
+                      width: '100%', 
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      position: 'relative'
+                    }}>
+                      {/* Total Due Header */}
+                      <Box sx={{ 
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        alignItems: 'center',
+                        padding: '0px 15px 15px 0px',
+                        borderBottom: '1px solid #ccc',
+                        height: 'auto'
+                      }}>
+                        <Box sx={{ textAlign: 'right' }}>
+                          <Typography sx={{ fontSize: '0.8rem', fontWeight: 'normal', color: '#000000' }}>
+                            Total Due
+                          </Typography>
+                          <Typography sx={{ 
+                            fontSize: '2.5rem',
+                            fontWeight: 'bold',
+                            color: '#000000',
+                            lineHeight: 1,
+                          }}>
+                            0.00
+                          </Typography>
+                        </Box>
+                      </Box>
+                      
+                      {/* Item Description */}
+                      <Box sx={{ 
+                        display: 'flex',
+                        borderBottom: '1px solid #2196f3',
+                        padding: '5px 10px',
+                        backgroundColor: '#ffffff'
+                      }}>
+                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 'normal', color: '#000000' }}>
+                          Item Description
+                        </Typography>
+                      </Box>
+                      
+                      {/* Tabs */}
+                      <Box sx={{ 
+                        display: 'flex',
+                        borderBottom: '1px solid #ccc',
+                        backgroundColor: '#e6f2f9'
+                      }}>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#e6f2f9', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                          Invoice Items
+                        </Box>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                          Document Summary
+                        </Box>
+                      </Box>
+                      
+                      {/* Table Header */}
+                      <Box sx={{ 
+                        display: 'flex',
+                        borderBottom: '1px solid #ccc',
+                        backgroundColor: '#ffffff'
+                      }}>
+                        <Box sx={{ width: '120px', padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          Product Code
+                        </Box>
+                        <Box sx={{ flex: 1, padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          Description
+                        </Box>
+                        <Box sx={{ width: '80px', padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          Quantity
+                        </Box>
+                        <Box sx={{ width: '120px', padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          List Price Inclusive
+                        </Box>
+                        <Box sx={{ width: '80px', padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          Discount %
+                        </Box>
+                        <Box sx={{ width: '130px', padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          Discounted Price Inclusive
+                        </Box>
+                        <Box sx={{ width: '120px', padding: '5px', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          Line Total Inclusive
+                        </Box>
+                      </Box>
+                      
+                      {/* Empty Line with ... */}
+                      <Box sx={{ 
+                        display: 'flex',
+                        borderBottom: '1px solid #ccc',
+                        backgroundColor: '#ffffff',
+                        height: '25px',
+                        alignItems: 'center'
+                      }}>
+                        <Box sx={{ width: '120px', padding: '5px', borderRight: '1px solid #ccc', fontSize: '0.75rem', textAlign: 'center', color: '#000000' }}>
+                          ...
+                        </Box>
+                        <Box sx={{ flex: 1, padding: '5px' }}></Box>
+                      </Box>
+                      
+                      {/* Table Content - Empty space */}
+                      <Box sx={{ 
+                        flex: 1,
+                        backgroundColor: '#ffffff'
+                      }}></Box>
+                      
+                      {/* Bottom Tabs */}
+                      <Box sx={{ 
+                        display: 'flex',
+                        borderTop: '1px solid #ccc',
+                        backgroundColor: '#e6f2f9'
+                      }}>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#e6f2f9', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                          Information
+                        </Box>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                          Additional Information
+                        </Box>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                          Line Information
+                        </Box>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                          Item Characteristics
+                        </Box>
+                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', fontSize: '0.8rem', color: '#000000' }}>
+                          Options
+                        </Box>
+                      </Box>
+                      
+                      {/* Payment Options and Details Container */}
+                      <Box sx={{ 
+                        display: 'flex', 
+                        borderTop: '1px solid #ccc',
+                        backgroundColor: '#ffffff',
+                        marginBottom: '40px', // Add margin to prevent overlap with footer
+                      }}>
+                        {/* Payment Options - Arranged in 3x3 grid as shown in screenshot */}
+                        <Box sx={{ 
+                          display: 'flex',
+                          flexDirection: 'column',
+                          backgroundColor: '#ffffff',
+                          padding: '5px',
+                          flex: 1
+                        }}>
+                          {/* First row of buttons */}
+                          <Box sx={{ display: 'flex', marginBottom: '5px' }}>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Cash</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F4)</Typography>
+                            </Box>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Split Tender</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Shift+F4)</Typography>
+                            </Box>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Gratuity</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+Shift+G)</Typography>
+                            </Box>
+                          </Box>
+                          
+                          {/* Second row of buttons */}
+                          <Box sx={{ display: 'flex', marginBottom: '5px' }}>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Card</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F3)</Typography>
+                            </Box>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Account</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F9)</Typography>
+                            </Box>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Void Sale</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+F9)</Typography>
+                            </Box>
+                          </Box>
+                          
+                          {/* Third row of buttons */}
+                          <Box sx={{ display: 'flex' }}>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Pro-Forma</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+F2)</Typography>
+                            </Box>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Customer</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+Shift+C)</Typography>
+                            </Box>
+                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
+                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Options</Typography>
+                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Shift+F1)</Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                        
+                        {/* Item Details and Document Totals Side by Side */}
+                        <Box sx={{ 
+                          display: 'flex',
+                          padding: '5px',
+                          gap: '5px',
+                          borderLeft: '1px solid #ccc',
+                          width: '400px',
+                        }}>
+                          {/* Item Details */}
+                          <Box sx={{ border: '1px solid #ccc', borderRadius: '0px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Box sx={{ padding: '2px 5px', borderBottom: '1px solid #ccc', backgroundColor: '#f0f0f0' }}>
+                              <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#880000' }}>Item Details</Typography>
+                            </Box>
+                            <Box sx={{ padding: '0' }}>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Stock On Hand</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>0.00</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Bin Location</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Shelf Location</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Unit Cost Excl.</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Charge Quantity</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Dimensions</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                          
+                          {/* Document Totals */}
+                          <Box sx={{ border: '1px solid #ccc', borderRadius: '0px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Box sx={{ padding: '2px 5px', borderBottom: '1px solid #ccc', backgroundColor: '#f0f0f0' }}>
+                              <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#880000' }}>Document Totals</Typography>
+                            </Box>
+                            <Box sx={{ padding: '0' }}>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>V.A.T Amount</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>0.00</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Sub Total</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>0.00</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Rounding</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Vouchers</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Deposit Collected</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>-</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex' }}>
+                                <Box sx={{ flex: 1, padding: '2px 4px', borderRight: '1px solid #eee', fontSize: '0.65rem', color: '#000000' }}>Total Due</Box>
+                                <Box sx={{ width: '50px', padding: '2px 4px', textAlign: 'right', fontSize: '0.65rem', color: '#000000' }}>0.00</Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Footer Status Bar */}
+                      <Box sx={{ 
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        width: '100%',
+                        height: 24,
+                        backgroundColor: '#00bcd4',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0 10px',
+                        color: '#000000',
+                        fontSize: '0.75rem',
+                        borderTop: '1px solid #ccc',
+                        zIndex: 1
+                      }}>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center',
+                          backgroundColor: '#008ba3',
+                          height: '100%',
+                          padding: '0 10px',
+                          fontWeight: 600,
+                          color: '#ffffff'
+                        }}>
+                          User logged on is : Smart Trade (Administrators)
+                        </Box>
+                        <Box sx={{ flexGrow: 1 }}></Box>
+                        <Box sx={{ fontWeight: 600 }}>License will expire within 308 days...</Box>
+                        <Box sx={{ width: 20 }}></Box>
+                        <Box sx={{ fontWeight: 600 }}>Location: Main Location</Box>
+                        <Box sx={{ width: 20 }}></Box>
+                        <Box sx={{ fontWeight: 600 }}>Support Number: <Box component="span" sx={{ textDecoration: 'underline', cursor: 'pointer' }}>C9001-6007c</Box></Box>
+                      </Box>
+                    </Box>
+                  </Box>
                 ) : (
                   <>
                     {/* SmartTrade Logo */}
@@ -1350,13 +1373,13 @@ const Software = () => {
                         component="img"
                         src="/images/logo/SmartTradeBackgroundLogo.jpg"
                         alt="Smart Trade Logo"
-                        sx={{
+                      sx={{
                           maxWidth: '65%',
                           height: 'auto',
                           mb: 1
                         }}
                       />
-                    </Box>
+                  </Box>
                     
                     {/* System Information */}
                     <Box sx={{ 
@@ -1400,7 +1423,7 @@ const Software = () => {
                         
                         <Grid item xs={4} sx={{ color: '#000000', fontWeight: 500 }}>Patch Number</Grid>
                         <Grid item xs={8} sx={{ color: '#000000' }}>181</Grid>
-                      </Grid>
+              </Grid>
                     </Box>
                     
                     {/* Copyright */}
@@ -1423,38 +1446,6 @@ const Software = () => {
                     </Box>
                   </>
                 )}
-                
-                {/* Footer Status Bar */}
-                <Box sx={{ 
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  width: '100%',
-                  height: 24,
-                  backgroundColor: '#00bcd4',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0 10px',
-                  color: 'white',
-                  fontSize: '0.75rem'
-                }}>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    backgroundColor: '#008ba3',
-                    height: '100%',
-                    padding: '0 10px',
-                    fontWeight: 600
-                  }}>
-                    User logged on is : Smart Trade (Administrators)
-                  </Box>
-                  <Box sx={{ flexGrow: 1 }}></Box>
-                  <Box sx={{ fontWeight: 600 }}>License will expire within 308 days...</Box>
-                  <Box sx={{ width: 20 }}></Box>
-                  <Box sx={{ fontWeight: 600 }}>Location: Main Location</Box>
-                  <Box sx={{ width: 20 }}></Box>
-                  <Box sx={{ fontWeight: 600 }}>Support Number: <span style={{ textDecoration: 'underline' }}>Contact Us</span></Box>
-                </Box>
               </Box>
             </Box>
           </Box>
