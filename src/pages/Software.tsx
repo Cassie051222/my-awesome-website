@@ -1103,10 +1103,33 @@ const Software = () => {
                         borderBottom: '1px solid #ccc',
                         backgroundColor: '#e6f2f9'
                       }}>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#e6f2f9', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#1976d2', 
+                          cursor: 'pointer', 
+                          borderRight: '1px solid #ccc', 
+                          fontSize: '0.8rem', 
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          top: '1px'
+                        }}>
                           Invoice Items
                         </Box>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#ffffff', 
+                          cursor: 'pointer', 
+                          borderRight: '1px solid #ccc', 
+                          fontSize: '0.8rem', 
+                          color: '#000000',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          top: '1px'
+                        }}>
                           Document Summary
                         </Box>
                       </Box>
@@ -1166,19 +1189,79 @@ const Software = () => {
                         borderTop: '1px solid #ccc',
                         backgroundColor: '#e6f2f9'
                       }}>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#e6f2f9', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#1976d2', 
+                          cursor: 'pointer', 
+                          borderRight: '1px solid #ccc', 
+                          fontSize: '0.8rem', 
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          bottom: '1px',
+                          marginTop: '-1px'
+                        }}>
                           Information
                         </Box>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#ffffff', 
+                          cursor: 'pointer', 
+                          borderRight: '1px solid #ccc', 
+                          fontSize: '0.8rem', 
+                          color: '#000000',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          bottom: '1px',
+                          marginTop: '-1px'
+                        }}>
                           Additional Information
                         </Box>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#ffffff', 
+                          cursor: 'pointer', 
+                          borderRight: '1px solid #ccc', 
+                          fontSize: '0.8rem', 
+                          color: '#000000',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          bottom: '1px',
+                          marginTop: '-1px'
+                        }}>
                           Line Information
                         </Box>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', borderRight: '1px solid #ccc', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#ffffff', 
+                          cursor: 'pointer', 
+                          borderRight: '1px solid #ccc', 
+                          fontSize: '0.8rem', 
+                          color: '#000000',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          bottom: '1px',
+                          marginTop: '-1px'
+                        }}>
                           Item Characteristics
                         </Box>
-                        <Box sx={{ padding: '5px 10px', backgroundColor: '#ffffff', cursor: 'pointer', fontSize: '0.8rem', color: '#000000' }}>
+                        <Box sx={{ 
+                          padding: '5px 10px', 
+                          backgroundColor: '#ffffff', 
+                          cursor: 'pointer', 
+                          fontSize: '0.8rem', 
+                          color: '#000000',
+                          borderTopLeftRadius: '8px',
+                          borderTopRightRadius: '8px',
+                          position: 'relative',
+                          bottom: '1px',
+                          marginTop: '-1px'
+                        }}>
                           Options
                         </Box>
                       </Box>
