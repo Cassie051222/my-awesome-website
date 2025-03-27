@@ -26,6 +26,7 @@ export interface Review {
   comment: string;
   date: Date;
   verified: boolean;
+  edited?: boolean;
 }
 
 const PRODUCTS_COLLECTION = 'products';
@@ -377,26 +378,24 @@ export const getProductReviews = async (productId: string): Promise<Review[]> =>
           const reviews = querySnapshot.docs.map(doc => {
             const data = doc.data();
             try {
-              // Handle date conversion safely
-              let reviewDate;
-              if (data.date) {
-                if (typeof data.date.toDate === 'function') {
-                  reviewDate = data.date.toDate();
-                } else if (data.date instanceof Date) {
-                  reviewDate = data.date;
-                } else {
-                  reviewDate = new Date(data.date);
-                }
+              // Create a date object properly
+              let reviewDate: Date;
+              if (data.date && typeof data.date.toDate === 'function') {
+                reviewDate = data.date.toDate();
+              } else if (data.date instanceof Date) {
+                reviewDate = data.date;
+              } else if (data.date) {
+                reviewDate = new Date(data.date);
               } else {
                 reviewDate = new Date();
               }
               
               return {
                 id: doc.id,
-                productId: data.productId || productId,
-                userId: data.userId || 'unknown',
+                productId: data.productId,
+                userId: data.userId,
                 userName: data.userName || 'Anonymous',
-                rating: typeof data.rating === 'number' ? data.rating : Number(data.rating || 0),
+                rating: Number(data.rating || 0),
                 comment: data.comment || '',
                 date: reviewDate,
                 verified: data.verified || false
@@ -414,9 +413,26 @@ export const getProductReviews = async (productId: string): Promise<Review[]> =>
       }
     }
     
+    // Filter out duplicate reviews by ID
+    const uniqueReviews: Review[] = [];
+    const reviewIds = new Set<string>();
+    
+    allReviews.forEach(review => {
+      if (review.id && !reviewIds.has(review.id)) {
+        reviewIds.add(review.id);
+        uniqueReviews.push(review);
+      } else if (!review.id) {
+        // If no ID (shouldn't happen), still include but log it
+        console.warn('Found review without ID:', review);
+        uniqueReviews.push(review);
+      }
+    });
+    
+    console.log(`[getProductReviews] Filtered ${allReviews.length} reviews to ${uniqueReviews.length} unique reviews`);
+    
     // Sort reviews by date
-    allReviews.sort((a, b) => b.date.getTime() - a.date.getTime());
-    return allReviews;
+    uniqueReviews.sort((a, b) => b.date.getTime() - a.date.getTime());
+    return uniqueReviews;
   } catch (error) {
     console.error('Error getting product reviews: ', error);
     return [];
@@ -429,6 +445,40 @@ export const addProductReview = async (review: Review): Promise<string> => {
     // Make sure the date is the current time (not a future date)
     const currentDate = new Date();
     
+    // Check if the user has already reviewed this product
+    const existingReviewQuery = query(
+      collection(db, REVIEWS_COLLECTION),
+      where('productId', '==', review.productId),
+      where('userId', '==', review.userId)
+    );
+    
+    const querySnapshot = await getDocs(existingReviewQuery);
+    
+    if (!querySnapshot.empty) {
+      // User already has a review, update it instead of creating a new one
+      console.log("User already has a review for this product, updating existing review");
+      const existingReviewDoc = querySnapshot.docs[0];
+      const existingReviewId = existingReviewDoc.id;
+      
+      const reviewData = {
+        rating: review.rating,
+        comment: review.comment,
+        date: currentDate,
+        // Keep existing fields but update these
+        userName: review.userName || existingReviewDoc.data().userName,
+        verified: review.verified !== undefined ? review.verified : existingReviewDoc.data().verified
+      };
+      
+      console.log("Updating existing review with ID:", existingReviewId);
+      await updateDoc(doc(db, REVIEWS_COLLECTION, existingReviewId), reviewData);
+      
+      // Update product rating and review count
+      await updateProductRatingAndCount(review.productId);
+      
+      return existingReviewId;
+    }
+    
+    // No existing review, create a new one
     // Prepare the review data for Firestore
     const reviewData = {
       productId: review.productId,
@@ -440,44 +490,50 @@ export const addProductReview = async (review: Review): Promise<string> => {
       verified: review.verified
     };
     
-    console.log("Submitting review to Firestore:", reviewData);
+    console.log("Submitting new review to Firestore:", reviewData);
     
     // Add the review
     const reviewDocRef = await addDoc(collection(db, REVIEWS_COLLECTION), reviewData);
     
-    try {
-      // Get all reviews for this product to calculate new average
-      const reviewsQuery = query(
-        collection(db, REVIEWS_COLLECTION),
-        where('productId', '==', review.productId)
-      );
-      
-      const querySnapshot = await getDocs(reviewsQuery);
-      const reviews = querySnapshot.docs.map(doc => ({
-        ...doc.data(),
-        rating: Number(doc.data().rating) // Ensure rating is a number
-      }));
-      
-      // Calculate new average rating
-      const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
-      const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
-      
-      // Update product with new rating and review count
-      const productRef = doc(db, PRODUCTS_COLLECTION, review.productId);
-      await updateDoc(productRef, {
-        rating: Number(averageRating.toFixed(1)), // Round to 1 decimal place
-        reviewCount: reviews.length
-      });
-    } catch (updateError) {
-      console.error('Error updating product rating:', updateError);
-      // Even if updating the product fails, we still return the review ID
-      // since the review was successfully added
-    }
+    // Update product rating and review count
+    await updateProductRatingAndCount(review.productId);
     
     return reviewDocRef.id;
   } catch (error) {
     console.error('Error adding product review:', error);
     throw error;
+  }
+};
+
+// Helper function to update product rating and review count
+const updateProductRatingAndCount = async (productId: string): Promise<void> => {
+  try {
+    // Get all reviews for this product to calculate new average
+    const reviewsQuery = query(
+      collection(db, REVIEWS_COLLECTION),
+      where('productId', '==', productId)
+    );
+    
+    const querySnapshot = await getDocs(reviewsQuery);
+    const reviews = querySnapshot.docs.map(doc => ({
+      ...doc.data(),
+      rating: Number(doc.data().rating) // Ensure rating is a number
+    }));
+    
+    // Calculate new average rating
+    const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+    const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+    
+    // Update product with new rating and review count
+    const productRef = doc(db, PRODUCTS_COLLECTION, productId);
+    await updateDoc(productRef, {
+      rating: Number(averageRating.toFixed(1)), // Round to 1 decimal place
+      reviewCount: reviews.length
+    });
+    
+    console.log(`Updated product ${productId} with new rating ${averageRating.toFixed(1)} and review count ${reviews.length}`);
+  } catch (updateError) {
+    console.error('Error updating product rating:', updateError);
   }
 };
 
@@ -549,6 +605,7 @@ export const updateProductReview = async (review: Review): Promise<void> => {
       rating: review.rating,
       comment: review.comment,
       date: new Date(), // Update the date to reflect the edit time
+      edited: true, // Always mark as edited when updating
     };
     
     // Update the review
@@ -585,6 +642,65 @@ export const updateProductReview = async (review: Review): Promise<void> => {
     }
   } catch (error) {
     console.error('Error updating product review:', error);
+    throw error;
+  }
+};
+
+// Sync product review stats with actual reviews in database
+export const syncProductReviewStats = async (productId: string): Promise<void> => {
+  try {
+    console.log(`Syncing review stats for product ID: ${productId}`);
+    
+    // Get all reviews for this product
+    const reviewsQuery = query(
+      collection(db, REVIEWS_COLLECTION),
+      where('productId', '==', productId)
+    );
+    
+    const querySnapshot = await getDocs(reviewsQuery);
+    const reviews = querySnapshot.docs.map(doc => ({
+      ...doc.data(),
+      rating: Number(doc.data().rating) // Ensure rating is a number
+    }));
+    
+    // Calculate actual stats
+    const reviewCount = reviews.length;
+    let averageRating = 0;
+    
+    if (reviewCount > 0) {
+      const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+      averageRating = totalRating / reviewCount;
+    }
+    
+    console.log(`Found ${reviewCount} actual reviews with average rating ${averageRating.toFixed(1)}`);
+    
+    // Get current product data
+    const productRef = doc(db, PRODUCTS_COLLECTION, productId);
+    const productDoc = await getDoc(productRef);
+    
+    if (!productDoc.exists()) {
+      console.error(`Product ${productId} not found for syncing review stats`);
+      return;
+    }
+    
+    const productData = productDoc.data();
+    
+    // Check if stats need updating
+    if (productData.reviewCount !== reviewCount || productData.rating !== Number(averageRating.toFixed(1))) {
+      console.log(`Updating product ${productId} stats: reviewCount ${productData.reviewCount} -> ${reviewCount}, rating ${productData.rating} -> ${averageRating.toFixed(1)}`);
+      
+      // Update product with correct stats
+      await updateDoc(productRef, {
+        rating: reviewCount > 0 ? Number(averageRating.toFixed(1)) : 0,
+        reviewCount: reviewCount
+      });
+      
+      console.log(`Product stats synced successfully`);
+    } else {
+      console.log(`Product stats are already in sync`);
+    }
+  } catch (error) {
+    console.error('Error syncing product review stats:', error);
     throw error;
   }
 }; 

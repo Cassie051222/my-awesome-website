@@ -32,6 +32,7 @@ import {
   Radio,
   CircularProgress,
   AlertColor,
+  Tooltip,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -42,9 +43,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getProductById, Product, getProductReviews, addProductReview, Review, deleteProductReview, updateProductReview } from '../services/ProductService';
+import { getProductById, Product, getProductReviews, addProductReview, Review, deleteProductReview, updateProductReview, syncProductReviewStats } from '../services/ProductService';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 // TabPanel component for product tabs
 interface TabPanelProps {
@@ -105,6 +108,7 @@ const ProductDetail = () => {
     comment: '',
   });
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [userOrders, setUserOrders] = useState<string[]>([]);
 
   // Fetch product details
   useEffect(() => {
@@ -130,7 +134,13 @@ const ProductDetail = () => {
           setError('Product not found');
         } else {
           setProduct(productData);
-          fetchProductReviews(productData.id);
+          // Automatically sync product review stats before fetching reviews
+          await syncProductReviewStats(productData.id);
+          const updatedProduct = await getProductById(productData.id);
+          if (updatedProduct) {
+            setProduct(updatedProduct);
+          }
+          fetchProductReviews(updatedProduct ? updatedProduct.id : productData.id);
         }
       } catch (err) {
         console.error('Error fetching product details:', err);
@@ -161,74 +171,86 @@ const ProductDetail = () => {
           date: review.date instanceof Date ? review.date : new Date(review.date)
         }));
         
-        console.log('Normalized reviews:', normalizedReviews);
-        setReviews(normalizedReviews);
+        // Double-check for duplicate IDs (in case the service method didn't catch them)
+        const uniqueReviews: Review[] = [];
+        const reviewIds = new Set<string>();
+        
+        normalizedReviews.forEach(review => {
+          if (review.id && !reviewIds.has(review.id)) {
+            reviewIds.add(review.id);
+            uniqueReviews.push(review);
+          } else if (!review.id) {
+            // If review has no ID, generate a random one to prevent duplicate rendering
+            uniqueReviews.push({
+              ...review,
+              id: Math.random().toString(36).substring(2, 15)
+            });
+          }
+        });
+        
+        console.log('Normalized unique reviews:', uniqueReviews);
+        setReviews(uniqueReviews);
         setReviewsLoading(false);
+        
+        // If review count doesn't match actual reviews, sync silently
+        if (product && product.reviewCount !== uniqueReviews.length) {
+          console.log('Review count mismatch, syncing silently...');
+          handleSyncReviews(true);
+        }
       } else {
         console.log('No reviews found for product ID:', productId);
+        setReviews([]);
+        setReviewsLoading(false);
         
-        // If product has reviews count but none were loaded, try a direct Firestore query
-        if (product?.reviewCount && product.reviewCount > 0) {
-          console.log('Product has reviews but none were loaded, trying again with delay...');
-          
-          // Set a delay before trying again
-          setTimeout(() => {
-            console.log('Retrying review fetch for product ID:', productId);
-            // Force a direct query to Firestore instead of using the service
-            import('firebase/firestore').then(({ collection, query, where, getDocs }) => {
-              import('../firebase/config').then(async ({ db }) => {
-                try {
-                  const reviewsQuery = query(
-                    collection(db, 'reviews'),
-                    where('productId', '==', productId)
-                  );
-                  
-                  const querySnapshot = await getDocs(reviewsQuery);
-                  console.log(`Direct query found ${querySnapshot.docs.length} reviews`);
-                  
-                  if (querySnapshot.docs.length > 0) {
-                    const reviews = querySnapshot.docs.map(doc => {
-                      const data = doc.data();
-                      return {
-                        id: doc.id,
-                        productId: data.productId,
-                        userId: data.userId,
-                        userName: data.userName || 'Anonymous',
-                        rating: Number(data.rating || 0),
-                        comment: data.comment || '',
-                        date: data.date?.toDate() || new Date(),
-                        verified: data.verified || false
-                      } as Review;
-                    });
-                    
-                    console.log('Reviews from direct query:', reviews);
-                    setReviews(reviews);
-                    setReviewsLoading(false);
-                  } else {
-                    // Make sure we set loading to false even if no reviews are found
-                    console.log('No reviews found in direct query either');
-                    setReviewsLoading(false);
-                  }
-                } catch (err) {
-                  console.error('Error in direct Firestore query:', err);
-                  setReviewsLoading(false);
-                }
-              }).catch(err => {
-                console.error('Error importing firebase config:', err);
-                setReviewsLoading(false);
-              });
-            }).catch(err => {
-              console.error('Error importing firebase/firestore:', err);
-              setReviewsLoading(false);
-            });
-          }, 1500);
-        } else {
-          setReviewsLoading(false);
+        // If product has reviewCount but no actual reviews, sync silently
+        if (product && product.reviewCount && product.reviewCount > 0) {
+          console.log('Product has reviewCount but no actual reviews, syncing silently...');
+          handleSyncReviews(true);
         }
       }
     } catch (err) {
       console.error('Error fetching reviews:', err);
       setReviewsLoading(false);
+    }
+  };
+
+  // Handle sync reviews function - modify to accept a silent parameter
+  const handleSyncReviews = async (silent: boolean = false) => {
+    if (!product) return;
+    
+    try {
+      if (!silent) {
+        setNotification({
+          open: true,
+          message: 'Syncing review data...',
+          severity: 'info',
+        });
+      }
+      
+      await syncProductReviewStats(product.id);
+      
+      // Refresh product data but not reviews to avoid infinite loop
+      const updatedProduct = await getProductById(product.id);
+      if (updatedProduct) {
+        setProduct(updatedProduct);
+      }
+      
+      if (!silent) {
+        setNotification({
+          open: true,
+          message: 'Review stats synchronized successfully!',
+          severity: 'success',
+        });
+      }
+    } catch (err) {
+      console.error('Error syncing review stats:', err);
+      if (!silent) {
+        setNotification({
+          open: true,
+          message: 'Failed to sync review stats. Please try again.',
+          severity: 'error',
+        });
+      }
     }
   };
 
@@ -328,16 +350,21 @@ const ProductDetail = () => {
       
       await deleteProductReview(reviewId);
       
+      // After deleting, sync the product stats and refresh
+      await syncProductReviewStats(product.id);
+      const updatedProduct = await getProductById(product.id);
+      if (updatedProduct) {
+        setProduct(updatedProduct);
+      }
+      
+      // Refresh the reviews
+      fetchProductReviews(product.id);
+      
       setNotification({
         open: true,
         message: 'Review deleted successfully!',
         severity: 'success',
       });
-      
-      // Refresh reviews after a short delay
-      setTimeout(() => {
-        fetchProductReviews(product.id);
-      }, 1000);
     } catch (err) {
       console.error('Error deleting review:', err);
       setNotification({
@@ -385,6 +412,7 @@ const ProductDetail = () => {
           rating: newReview.rating,
           comment: newReview.comment,
           date: new Date(), // Update the date to reflect the edit time
+          edited: true, // Mark as edited
         };
 
         console.log('Updating review:', updatedReview);
@@ -399,7 +427,9 @@ const ProductDetail = () => {
           rating: newReview.rating,
           comment: newReview.comment,
           date: new Date(),
-          verified: true, // Mark as verified if they purchased the product
+          // Only mark as verified if it's actually in the user's orders
+          verified: userOrders.includes(product.id),
+          edited: false,
         };
 
         console.log('Submitting review:', reviewData);
@@ -407,12 +437,15 @@ const ProductDetail = () => {
         console.log('Review submitted with ID:', reviewId);
       }
       
-      // If we get here, the review was successfully added or updated
+      // After adding/updating, sync the product stats and refresh
+      await syncProductReviewStats(product.id);
+      const updatedProduct = await getProductById(product.id);
+      if (updatedProduct) {
+        setProduct(updatedProduct);
+      }
       
-      // Refresh reviews after a short delay to allow Firestore to update
-      setTimeout(() => {
-        fetchProductReviews(product.id);
-      }, 1000);
+      // Refresh the reviews
+      fetchProductReviews(product.id);
       
       setNotification({
         open: true,
@@ -433,6 +466,48 @@ const ProductDetail = () => {
       });
     }
   };
+
+  // Add a function to check if user has purchased the product (after the handleSyncReviews function)
+  const checkUserPurchase = async () => {
+    if (!user || !product) return [];
+    
+    try {
+      // This is a placeholder - you'd need to implement a proper orders fetch based on your data structure
+      // For example, you might fetch the user's orders from your database
+      const userOrdersRef = query(
+        collection(db, 'orders'),
+        where('userId', '==', user.uid)
+      );
+      
+      const ordersSnapshot = await getDocs(userOrdersRef);
+      
+      // Extract product IDs from user's orders
+      const purchasedProductIds: string[] = [];
+      ordersSnapshot.docs.forEach(doc => {
+        const orderData = doc.data();
+        if (orderData.items && Array.isArray(orderData.items)) {
+          orderData.items.forEach((item: any) => {
+            if (item.id) {
+              purchasedProductIds.push(item.id);
+            }
+          });
+        }
+      });
+      
+      setUserOrders(purchasedProductIds);
+      return purchasedProductIds;
+    } catch (err) {
+      console.error('Error checking user purchase history:', err);
+      return [];
+    }
+  };
+
+  // Add useEffect to fetch user orders when user or product changes
+  useEffect(() => {
+    if (user && product) {
+      checkUserPurchase();
+    }
+  }, [user, product]);
 
   const renderLoadingSkeleton = () => (
     <Box sx={{ pb: 8, textAlign: 'center' }}>
@@ -799,7 +874,11 @@ const ProductDetail = () => {
                   </Box>
                   <List sx={{ width: '100%' }}>
                     {reviews.map((review) => (
-                      <ListItem key={review.id || Math.random().toString()} alignItems="flex-start" disableGutters>
+                      <ListItem 
+                        key={review.id || `review-${Math.random().toString(36).substring(2, 15)}`} 
+                        alignItems="flex-start" 
+                        disableGutters
+                      >
                         <Paper sx={{ width: '100%', p: 2, mb: 2 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -822,6 +901,9 @@ const ProductDetail = () => {
                                   <Rating value={review.rating || 0} size="small" readOnly />
                                   <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
                                     {formatDate(review.date instanceof Date ? review.date : new Date(review.date))}
+                                    {review.edited && (
+                                      <span style={{ marginLeft: '4px', fontStyle: 'italic' }}>(Edited)</span>
+                                    )}
                                   </Typography>
                                 </Box>
                               </Box>
@@ -874,9 +956,7 @@ const ProductDetail = () => {
                   </Box>
                   <Box sx={{ textAlign: 'center', py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
-                      {(product.reviewCount && product.reviewCount > 0) ? 
-                      "Reviews exist but couldn't be loaded. Please try the button above." : 
-                      "No reviews yet. Be the first to review this product!"}
+                      No reviews yet. Be the first to review this product!
                     </Typography>
                   </Box>
                 </Grid>
