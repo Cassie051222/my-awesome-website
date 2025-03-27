@@ -31,6 +31,7 @@ import {
   FormControlLabel,
   Radio,
   CircularProgress,
+  AlertColor,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -38,7 +39,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import ShareIcon from '@mui/icons-material/Share';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { getProductById, Product, getProductReviews, addProductReview, Review } from '../services/ProductService';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getProductById, Product, getProductReviews, addProductReview, Review, deleteProductReview, updateProductReview } from '../services/ProductService';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -90,16 +94,17 @@ const ProductDetail = () => {
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'success' as 'success' | 'error',
+    severity: 'success' as AlertColor,
   });
   const [tabValue, setTabValue] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [newReview, setNewReview] = useState({
-    rating: 5,
+    rating: 0,
     comment: '',
   });
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
 
   // Fetch product details
   useEffect(() => {
@@ -108,7 +113,19 @@ const ProductDetail = () => {
       
       try {
         setLoading(true);
+        
+        // Add a safety timeout to prevent infinite loading
+        const timeoutId = setTimeout(() => {
+          console.warn('Product loading timed out after 5 seconds');
+          setLoading(false);
+          setError('Loading timed out. Please try refreshing the page.');
+        }, 5000);
+        
         const productData = await getProductById(id);
+        
+        // Clear the timeout since we got a response
+        clearTimeout(timeoutId);
+        
         if (!productData) {
           setError('Product not found');
         } else {
@@ -130,11 +147,87 @@ const ProductDetail = () => {
   const fetchProductReviews = async (productId: string) => {
     try {
       setReviewsLoading(true);
+      console.log('Fetching reviews for product ID:', productId);
+      
       const reviewsData = await getProductReviews(productId);
-      setReviews(reviewsData);
+      console.log('Reviews data received:', JSON.stringify(reviewsData));
+      
+      if (reviewsData && reviewsData.length > 0) {
+        // Force convert all ratings to numbers to avoid type issues
+        const normalizedReviews = reviewsData.map(review => ({
+          ...review,
+          rating: typeof review.rating === 'number' ? review.rating : Number(review.rating || 0),
+          // Ensure date is a proper Date object
+          date: review.date instanceof Date ? review.date : new Date(review.date)
+        }));
+        
+        console.log('Normalized reviews:', normalizedReviews);
+        setReviews(normalizedReviews);
+        setReviewsLoading(false);
+      } else {
+        console.log('No reviews found for product ID:', productId);
+        
+        // If product has reviews count but none were loaded, try a direct Firestore query
+        if (product?.reviewCount && product.reviewCount > 0) {
+          console.log('Product has reviews but none were loaded, trying again with delay...');
+          
+          // Set a delay before trying again
+          setTimeout(() => {
+            console.log('Retrying review fetch for product ID:', productId);
+            // Force a direct query to Firestore instead of using the service
+            import('firebase/firestore').then(({ collection, query, where, getDocs }) => {
+              import('../firebase/config').then(async ({ db }) => {
+                try {
+                  const reviewsQuery = query(
+                    collection(db, 'reviews'),
+                    where('productId', '==', productId)
+                  );
+                  
+                  const querySnapshot = await getDocs(reviewsQuery);
+                  console.log(`Direct query found ${querySnapshot.docs.length} reviews`);
+                  
+                  if (querySnapshot.docs.length > 0) {
+                    const reviews = querySnapshot.docs.map(doc => {
+                      const data = doc.data();
+                      return {
+                        id: doc.id,
+                        productId: data.productId,
+                        userId: data.userId,
+                        userName: data.userName || 'Anonymous',
+                        rating: Number(data.rating || 0),
+                        comment: data.comment || '',
+                        date: data.date?.toDate() || new Date(),
+                        verified: data.verified || false
+                      } as Review;
+                    });
+                    
+                    console.log('Reviews from direct query:', reviews);
+                    setReviews(reviews);
+                    setReviewsLoading(false);
+                  } else {
+                    // Make sure we set loading to false even if no reviews are found
+                    console.log('No reviews found in direct query either');
+                    setReviewsLoading(false);
+                  }
+                } catch (err) {
+                  console.error('Error in direct Firestore query:', err);
+                  setReviewsLoading(false);
+                }
+              }).catch(err => {
+                console.error('Error importing firebase config:', err);
+                setReviewsLoading(false);
+              });
+            }).catch(err => {
+              console.error('Error importing firebase/firestore:', err);
+              setReviewsLoading(false);
+            });
+          }, 1500);
+        } else {
+          setReviewsLoading(false);
+        }
+      }
     } catch (err) {
       console.error('Error fetching reviews:', err);
-    } finally {
       setReviewsLoading(false);
     }
   };
@@ -164,13 +257,11 @@ const ProductDetail = () => {
       return;
     }
     
-    // No need to apply conversion here since we'll use the already converted price
-    const adjustedPrice = product.price * 18.5; // Using the same conversion as in product listing
-    
+    // Use direct price without conversion
     addItem({
       id: product.id,
       name: product.name,
-      price: adjustedPrice,
+      price: product.price,
       imageUrl: product.imageUrl,
       quantity,
     });
@@ -202,16 +293,11 @@ const ProductDetail = () => {
 
   const handleReviewDialogClose = () => {
     setReviewDialogOpen(false);
+    setEditingReview(null);
+    setNewReview({ rating: 0, comment: '' });
   };
 
   // Handle review form changes
-  const handleReviewRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNewReview({
-      ...newReview,
-      rating: parseInt(event.target.value),
-    });
-  };
-
   const handleReviewCommentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNewReview({
       ...newReview,
@@ -219,40 +305,130 @@ const ProductDetail = () => {
     });
   };
 
-  // Submit review
+  // Handle review edit
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setNewReview({
+      rating: review.rating,
+      comment: review.comment,
+    });
+    setReviewDialogOpen(true);
+  };
+
+  // Handle review delete
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!product || !reviewId) return;
+    
+    try {
+      setNotification({
+        open: true,
+        message: 'Deleting review...',
+        severity: 'info',
+      });
+      
+      await deleteProductReview(reviewId);
+      
+      setNotification({
+        open: true,
+        message: 'Review deleted successfully!',
+        severity: 'success',
+      });
+      
+      // Refresh reviews after a short delay
+      setTimeout(() => {
+        fetchProductReviews(product.id);
+      }, 1000);
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      setNotification({
+        open: true,
+        message: 'Failed to delete review. Please try again.',
+        severity: 'error',
+      });
+    }
+  };
+
+  // Submit review (modified to handle both new and edited reviews)
   const handleReviewSubmit = async () => {
     if (!product || !user) return;
 
     try {
-      const reviewData: Review = {
-        productId: product.id,
-        userId: user.uid,
-        userName: user.displayName || 'Anonymous',
-        rating: newReview.rating,
-        comment: newReview.comment,
-        date: new Date(),
-        verified: true, // Mark as verified if they purchased the product
-      };
+      setNotification({
+        open: true,
+        message: editingReview ? 'Updating your review...' : 'Submitting your review...',
+        severity: 'info',
+      });
 
-      await addProductReview(reviewData);
+      // First check if the review is valid
+      if (newReview.rating === 0) {
+        setNotification({
+          open: true,
+          message: 'Please select a rating before submitting',
+          severity: 'error',
+        });
+        return;
+      }
+
+      if (newReview.comment.trim() === '') {
+        setNotification({
+          open: true,
+          message: 'Please write a review comment before submitting',
+          severity: 'error',
+        });
+        return;
+      }
+
+      if (editingReview) {
+        // Update existing review
+        const updatedReview: Review = {
+          ...editingReview,
+          rating: newReview.rating,
+          comment: newReview.comment,
+          date: new Date(), // Update the date to reflect the edit time
+        };
+
+        console.log('Updating review:', updatedReview);
+        await updateProductReview(updatedReview);
+        console.log('Review updated successfully');
+      } else {
+        // Create new review
+        const reviewData: Review = {
+          productId: product.id,
+          userId: user.uid,
+          userName: user.displayName || 'Anonymous',
+          rating: newReview.rating,
+          comment: newReview.comment,
+          date: new Date(),
+          verified: true, // Mark as verified if they purchased the product
+        };
+
+        console.log('Submitting review:', reviewData);
+        const reviewId = await addProductReview(reviewData);
+        console.log('Review submitted with ID:', reviewId);
+      }
       
-      // Refresh reviews
-      fetchProductReviews(product.id);
+      // If we get here, the review was successfully added or updated
+      
+      // Refresh reviews after a short delay to allow Firestore to update
+      setTimeout(() => {
+        fetchProductReviews(product.id);
+      }, 1000);
       
       setNotification({
         open: true,
-        message: 'Review submitted successfully!',
+        message: editingReview ? 'Review updated successfully!' : 'Review submitted successfully!',
         severity: 'success',
       });
       
       // Reset form and close dialog
-      setNewReview({ rating: 5, comment: '' });
+      setNewReview({ rating: 0, comment: '' });
+      setEditingReview(null);
       setReviewDialogOpen(false);
     } catch (err) {
-      console.error('Error submitting review:', err);
+      console.error(editingReview ? 'Error updating review:' : 'Error submitting review:', err);
       setNotification({
         open: true,
-        message: 'Failed to submit review. Please try again.',
+        message: editingReview ? 'Failed to update review. Please try again.' : 'Failed to submit review. Please try again.',
         severity: 'error',
       });
     }
@@ -305,11 +481,10 @@ const ProductDetail = () => {
     );
   }
   
-  // Calculate prices
-  const priceInZAR = (product?.price || 0) * 18.5;
+  // Calculate prices - no conversion necessary
   const finalPrice = product?.discount 
-    ? priceInZAR * (1 - (product.discount / 100)) 
-    : priceInZAR;
+    ? product.price * (1 - (product.discount / 100)) 
+    : product.price;
   
   return (
     <Box sx={{ pb: 8 }}>
@@ -401,7 +576,7 @@ const ProductDetail = () => {
                         variant="body1"
                         sx={{ textDecoration: 'line-through', color: 'text.secondary' }}
                       >
-                        R{priceInZAR.toLocaleString()}
+                        R{product.price.toLocaleString()}
                       </Typography>
                       <Typography variant="h5" color="primary" fontWeight="bold">
                         R{finalPrice.toLocaleString()}
@@ -409,7 +584,7 @@ const ProductDetail = () => {
                     </>
                   ) : (
                     <Typography variant="h5" color="primary" fontWeight="bold">
-                      R{priceInZAR.toLocaleString()}
+                      R{product.price.toLocaleString()}
                     </Typography>
                   )}
                 </Box>
@@ -514,122 +689,199 @@ const ProductDetail = () => {
           
           {/* Reviews Tab */}
           <TabPanel value={tabValue} index={1}>
-            <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6">Customer Reviews</Typography>
-                <Button 
-                  variant="contained" 
-                  onClick={handleReviewDialogOpen}
-                  sx={{
-                    background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
-                    '&:hover': {
-                      background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
-                    },
-                  }}
-                >
-                  Write a Review
-                </Button>
-              </Box>
-              
+            <Grid container spacing={4}>
               {/* Reviews Summary */}
-              <Box sx={{ display: 'flex', gap: 4, mb: 4 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <Typography variant="h3" fontWeight="bold">{product.rating.toFixed(1)}</Typography>
-                  <Rating value={product.rating} precision={0.5} readOnly size="large" />
-                  <Typography variant="body2" color="text.secondary">
-                    {product.reviewCount || reviews.length} reviews
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ flexGrow: 1 }}>
-                  {[5, 4, 3, 2, 1].map((star) => {
-                    const count = reviews.filter(review => Math.round(review.rating) === star).length;
-                    const percentage = reviews.length ? (count / reviews.length) * 100 : 0;
-                    
-                    return (
-                      <Box key={star} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="body2" sx={{ width: 30 }}>
-                          {star}★
-                        </Typography>
-                        <Box sx={{ flexGrow: 1, ml: 1, mr: 2 }}>
+              <Grid item xs={12} md={4}>
+                <Paper sx={{ p: 3, height: '100%' }}>
+                  <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <Typography variant="h6" gutterBottom>Customer Reviews</Typography>
+                    <Typography variant="h3" fontWeight="bold">{(product.rating || 0).toFixed(1)}</Typography>
+                    <Rating 
+                      value={product.rating || 0} 
+                      precision={0.5} 
+                      readOnly 
+                      size="large"
+                      sx={{ mt: 1 }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      Based on {product.reviewCount || reviews.length} reviews
+                    </Typography>
+                  </Box>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  {/* Rating Breakdown */}
+                  <Box>
+                    <Typography variant="subtitle2" gutterBottom>Rating Breakdown</Typography>
+                    {[5, 4, 3, 2, 1].map((star) => {
+                      // Calculate how many reviews have this star rating
+                      const count = reviews.filter(review => {
+                        // Convert to number to ensure proper comparison
+                        const reviewRating = Number(review.rating);
+                        const roundedRating = Math.round(reviewRating);
+                        return roundedRating === star;
+                      }).length;
+                      
+                      // For automatic rating breakdown when reviews array is empty but product has rating
+                      let percentage = 0;
+                      if (reviews.length > 0) {
+                        percentage = (count / reviews.length) * 100;
+                      } else if (product.reviewCount && product.reviewCount > 0) {
+                        // If product has rating but reviews array is empty
+                        const productRating = Math.round(product.rating || 0);
+                        if (productRating === star) {
+                          percentage = 100; // This is the only rating
+                        }
+                      }
+
+                      return (
+                        <Box key={star} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <Typography variant="body2" sx={{ minWidth: 25 }}>
+                            {star}
+                          </Typography>
+                          <Rating value={star} max={1} readOnly size="small" sx={{ mx: 1 }} />
                           <Box
                             sx={{
-                              width: '100%',
-                              height: 10,
+                              flexGrow: 1,
+                              height: 8,
                               bgcolor: 'background.paper',
-                              borderRadius: 5,
+                              borderRadius: 1,
                               position: 'relative',
+                              mr: 1,
                             }}
                           >
                             <Box
                               sx={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
                                 height: '100%',
                                 width: `${percentage}%`,
-                                bgcolor: '#FF6B00',
-                                borderRadius: 5,
+                                bgcolor: star > 3 ? 'success.main' : star > 1 ? 'warning.main' : 'error.main',
+                                borderRadius: 1,
                               }}
                             />
                           </Box>
+                          <Typography variant="body2" color="text.secondary">
+                            {percentage > 0 ? `${percentage.toFixed(0)}%` : '0%'}
+                          </Typography>
                         </Box>
-                        <Typography variant="body2" color="text.secondary" sx={{ width: 40 }}>
-                          {percentage.toFixed(0)}%
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              </Box>
+                      );
+                    })}
+                  </Box>
+
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mt: 3 }}
+                    onClick={handleReviewDialogOpen}
+                  >
+                    Write a Review
+                  </Button>
+                </Paper>
+              </Grid>
               
               {/* Reviews List */}
               {reviewsLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                  <CircularProgress />
-                </Box>
+                <Grid item xs={12} md={8}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                    <CircularProgress />
+                  </Box>
+                </Grid>
               ) : reviews.length > 0 ? (
-                <List sx={{ width: '100%' }}>
-                  {reviews.map((review) => (
-                    <ListItem key={review.id} alignItems="flex-start" disableGutters>
-                      <Paper sx={{ width: '100%', p: 2, mb: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <Avatar sx={{ bgcolor: '#FF6B00', mr: 2 }}>
-                            {review.userName.charAt(0)}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="subtitle1">
-                              {review.userName}
-                              {review.verified && (
-                                <Chip 
-                                  label="Verified Purchase" 
-                                  size="small" 
-                                  color="success" 
-                                  sx={{ ml: 1, height: 20, fontSize: '0.7rem' }} 
-                                />
-                              )}
-                            </Typography>
+                <Grid item xs={12} md={8}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6">Recent Reviews</Typography>
+                    <Button 
+                      size="small"
+                      onClick={() => product && fetchProductReviews(product.id)}
+                      startIcon={<RefreshIcon />}
+                    >
+                      Refresh
+                    </Button>
+                  </Box>
+                  <List sx={{ width: '100%' }}>
+                    {reviews.map((review) => (
+                      <ListItem key={review.id || Math.random().toString()} alignItems="flex-start" disableGutters>
+                        <Paper sx={{ width: '100%', p: 2, mb: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'space-between' }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Rating value={review.rating} size="small" readOnly />
-                              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                                {formatDate(new Date(review.date))}
-                              </Typography>
+                              <Avatar sx={{ bgcolor: '#FF6B00', mr: 2 }}>
+                                {(review.userName && review.userName.charAt(0)) || 'A'}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle1">
+                                  {review.userName || 'Anonymous'}
+                                  {review.verified && (
+                                    <Chip 
+                                      label="Verified Purchase" 
+                                      size="small" 
+                                      color="success" 
+                                      sx={{ ml: 1, height: 20, fontSize: '0.7rem' }} 
+                                    />
+                                  )}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                  <Rating value={review.rating || 0} size="small" readOnly />
+                                  <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                                    {formatDate(review.date instanceof Date ? review.date : new Date(review.date))}
+                                  </Typography>
+                                </Box>
+                              </Box>
                             </Box>
+                            
+                            {/* Show edit/delete buttons only for the user's own reviews */}
+                            {user && review.userId === user.uid && (
+                              <Box>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => review.id && handleEditReview(review)}
+                                  sx={{ mr: 1 }}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => review.id && handleDeleteReview(review.id)}
+                                  color="error"
+                                >
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            )}
                           </Box>
-                        </Box>
-                        <Typography variant="body2">{review.comment}</Typography>
-                      </Paper>
-                    </ListItem>
-                  ))}
-                </List>
+                          <Typography variant="body2">{review.comment}</Typography>
+                        </Paper>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Grid>
               ) : (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body1" color="text.secondary">
-                    No reviews yet. Be the first to review this product!
-                  </Typography>
-                </Box>
+                <Grid item xs={12} md={8}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h6">Reviews</Typography>
+                    <Button 
+                      size="small"
+                      variant="contained"
+                      onClick={() => product && fetchProductReviews(product.id)}
+                      startIcon={<RefreshIcon />}
+                      sx={{
+                        background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
+                        '&:hover': {
+                          background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
+                        },
+                      }}
+                    >
+                      Load Reviews
+                    </Button>
+                  </Box>
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body1" color="text.secondary">
+                      {(product.reviewCount && product.reviewCount > 0) ? 
+                      "Reviews exist but couldn't be loaded. Please try the button above." : 
+                      "No reviews yet. Be the first to review this product!"}
+                    </Typography>
+                  </Box>
+                </Grid>
               )}
-            </Box>
+            </Grid>
           </TabPanel>
         </Box>
       </Container>
@@ -652,40 +904,47 @@ const ProductDetail = () => {
       
       {/* Review Dialog */}
       <Dialog open={reviewDialogOpen} onClose={handleReviewDialogClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Write a Review</DialogTitle>
+        <DialogTitle>{editingReview ? 'Edit Your Review' : 'Write a Review'}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
             <Typography variant="subtitle1" gutterBottom>
               How would you rate this product?
             </Typography>
-            <FormControl component="fieldset">
-              <RadioGroup
-                row
-                name="rating"
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Rating
+                name="product-rating"
                 value={newReview.rating}
-                onChange={handleReviewRatingChange}
-              >
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <FormControlLabel
-                    key={value}
-                    value={value}
-                    control={<Radio />}
-                    label={
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Rating value={value} readOnly size="small" sx={{ mr: 1 }} />
-                        <Typography variant="body2">
-                          {value === 1 ? 'Poor' : 
-                           value === 2 ? 'Fair' : 
-                           value === 3 ? 'Good' : 
-                           value === 4 ? 'Very Good' : 'Excellent'}
-                        </Typography>
-                      </Box>
-                    }
-                    sx={{ mr: 2 }}
-                  />
-                ))}
-              </RadioGroup>
-            </FormControl>
+                precision={1}
+                size="large"
+                onChange={(event, newValue) => {
+                  setNewReview({
+                    ...newReview,
+                    rating: newValue || 0
+                  });
+                }}
+                sx={{ 
+                  fontSize: '2.2rem',
+                  '& .MuiRating-iconEmpty': {
+                    color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'
+                  },
+                  '& .MuiRating-iconHover': {
+                    color: '#FFD700',
+                    transform: 'scale(1.2)',
+                    transition: 'transform 0.2s ease-in-out, color 0.2s'
+                  },
+                  '& .MuiRating-iconFilled': {
+                    color: '#FFD700'
+                  }
+                }}
+              />
+              <Typography variant="body1" sx={{ ml: 2 }}>
+                {newReview.rating === 0 ? 'Select Rating' :
+                 newReview.rating === 1 ? 'Poor' : 
+                 newReview.rating === 2 ? 'Fair' : 
+                 newReview.rating === 3 ? 'Good' : 
+                 newReview.rating === 4 ? 'Very Good' : 'Excellent'}
+              </Typography>
+            </Box>
             
             <TextField
               margin="dense"
@@ -705,7 +964,7 @@ const ProductDetail = () => {
           <Button 
             onClick={handleReviewSubmit} 
             variant="contained"
-            disabled={newReview.comment.trim().length === 0}
+            disabled={newReview.rating === 0 || newReview.comment.trim().length === 0}
             sx={{
               background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
               '&:hover': {
@@ -713,7 +972,7 @@ const ProductDetail = () => {
               },
             }}
           >
-            Submit Review
+            {editingReview ? 'Update Review' : 'Submit Review'}
           </Button>
         </DialogActions>
       </Dialog>

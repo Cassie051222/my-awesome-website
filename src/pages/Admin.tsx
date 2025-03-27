@@ -29,6 +29,7 @@ import {
   CircularProgress,
   Divider,
   useTheme,
+  LinearProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -38,7 +39,8 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { db, storage } from '../firebase/config';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse';
@@ -94,6 +96,7 @@ const AdminPage: React.FC = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
 
   const [tabValue, setTabValue] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -123,6 +126,9 @@ const AdminPage: React.FC = () => {
     severity: 'success' as 'success' | 'error' | 'info' | 'warning',
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   // Product categories
   const productCategories = [
@@ -223,6 +229,8 @@ const AdminPage: React.FC = () => {
       });
       setIsEditing(false);
     }
+    setImageFile(null);
+    setUploadProgress(0);
     setProductDialogOpen(true);
   };
 
@@ -260,9 +268,62 @@ const AdminPage: React.FC = () => {
     setCurrentFAQ({ ...currentFAQ, category: e.target.value });
   };
 
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      
+      // Create a preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setCurrentProduct({ ...currentProduct, imageUrl: previewUrl });
+    }
+  };
+
+  const uploadImageToStorage = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      // Create a unique file name
+      const fileName = `product_images/${Date.now()}_${file.name}`;
+      const storageRef = ref(storage, fileName);
+      
+      // Upload the file
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      
+      // Monitor the upload progress
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          setIsUploading(false);
+          console.error('Upload failed:', error);
+          reject(error);
+        },
+        async () => {
+          // Upload completed successfully, get the download URL
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          setIsUploading(false);
+          setUploadProgress(0);
+          resolve(downloadUrl);
+        }
+      );
+    });
+  };
+
   const handleAddOrUpdateProduct = async () => {
     setLoading(true);
     try {
+      // If a file was selected, upload it first
+      let finalImageUrl = currentProduct.imageUrl;
+      
+      if (imageFile) {
+        finalImageUrl = await uploadImageToStorage(imageFile);
+      }
+      
       if (isEditing && currentProduct.id) {
         // Update existing product
         await updateDoc(doc(db, 'products', currentProduct.id), {
@@ -270,7 +331,7 @@ const AdminPage: React.FC = () => {
           price: currentProduct.price,
           description: currentProduct.description,
           category: currentProduct.category,
-          imageUrl: currentProduct.imageUrl,
+          imageUrl: finalImageUrl,
           stock: currentProduct.stock,
           specifications: currentProduct.specifications,
           brand: currentProduct.brand,
@@ -287,7 +348,7 @@ const AdminPage: React.FC = () => {
           price: currentProduct.price,
           description: currentProduct.description,
           category: currentProduct.category,
-          imageUrl: currentProduct.imageUrl,
+          imageUrl: finalImageUrl,
           stock: currentProduct.stock,
           specifications: currentProduct.specifications,
           brand: currentProduct.brand,
@@ -299,6 +360,7 @@ const AdminPage: React.FC = () => {
         });
       }
       setProductDialogOpen(false);
+      setImageFile(null);
       fetchProducts();
     } catch (error) {
       console.error('Error adding/updating product:', error);
@@ -508,6 +570,36 @@ const AdminPage: React.FC = () => {
     });
   };
 
+  // Add handler for specifications
+  const [specificationKey, setSpecificationKey] = useState('');
+  const [specificationValue, setSpecificationValue] = useState('');
+
+  const handleAddSpecification = () => {
+    if (specificationKey.trim() === '' || specificationValue.trim() === '') return;
+    
+    setCurrentProduct({
+      ...currentProduct,
+      specifications: {
+        ...(currentProduct.specifications || {}),
+        [specificationKey]: specificationValue
+      }
+    });
+    
+    // Clear inputs
+    setSpecificationKey('');
+    setSpecificationValue('');
+  };
+
+  const handleRemoveSpecification = (key: string) => {
+    const newSpecs = { ...(currentProduct.specifications || {}) };
+    delete newSpecs[key];
+    
+    setCurrentProduct({
+      ...currentProduct,
+      specifications: newSpecs
+    });
+  };
+
   // If not admin, redirect
   if (user && !isAdmin()) {
     return (
@@ -652,7 +744,7 @@ const AdminPage: React.FC = () => {
                     {products.map((product) => (
                       <TableRow key={product.id}>
                         <TableCell>{product.name}</TableCell>
-                        <TableCell>${product.price.toFixed(2)}</TableCell>
+                        <TableCell>R{product.price.toFixed(2)}</TableCell>
                         <TableCell>{product.category}</TableCell>
                         <TableCell>{product.stock}</TableCell>
                         <TableCell>{product.brand}</TableCell>
@@ -790,7 +882,7 @@ const AdminPage: React.FC = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 name="price"
-                label="Price ($)"
+                label="Price (R)"
                 type="number"
                 value={currentProduct.price}
                 onChange={handleProductChange}
@@ -848,6 +940,67 @@ const AdminPage: React.FC = () => {
                 helperText="URL to the product image"
               />
             </Grid>
+            
+            {/* Image Upload Section */}
+            <Grid item xs={12}>
+              <Divider sx={{ my: 2 }}>
+                <Typography variant="body2" color="text.secondary">OR</Typography>
+              </Divider>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  ref={imageFileInputRef}
+                  style={{ display: 'none' }}
+                />
+                <Button
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => imageFileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  Choose Image File
+                </Button>
+                {imageFile && (
+                  <Typography variant="body2">
+                    Selected: {imageFile.name}
+                  </Typography>
+                )}
+                {isUploading && (
+                  <Box sx={{ width: '100%', mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Uploading: {Math.round(uploadProgress)}%
+                    </Typography>
+                    <LinearProgress variant="determinate" value={uploadProgress} />
+                  </Box>
+                )}
+                {currentProduct.imageUrl && (
+                  <Box sx={{ mt: 2, width: '100%', textAlign: 'center' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Image Preview:
+                    </Typography>
+                    <Box
+                      component="img"
+                      src={currentProduct.imageUrl}
+                      alt="Product preview"
+                      sx={{
+                        maxWidth: '100%',
+                        maxHeight: '200px',
+                        objectFit: 'contain',
+                        border: '1px solid #ddd',
+                        borderRadius: 1,
+                        p: 1
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150?text=No+Image';
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
+            </Grid>
+            
             <Grid item xs={12}>
               <TextField
                 name="description"
@@ -861,6 +1014,67 @@ const AdminPage: React.FC = () => {
                 margin="normal"
               />
             </Grid>
+
+            {/* Specifications Section */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                Product Specifications
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                <TextField
+                  label="Specification Name"
+                  value={specificationKey}
+                  onChange={(e) => setSpecificationKey(e.target.value)}
+                  sx={{ flexGrow: 1 }}
+                />
+                <TextField
+                  label="Specification Value"
+                  value={specificationValue}
+                  onChange={(e) => setSpecificationValue(e.target.value)}
+                  sx={{ flexGrow: 1 }}
+                />
+                <Button 
+                  variant="outlined" 
+                  onClick={handleAddSpecification}
+                  disabled={!specificationKey.trim() || !specificationValue.trim()}
+                >
+                  Add
+                </Button>
+              </Box>
+              
+              {/* Display current specifications */}
+              {currentProduct.specifications && Object.keys(currentProduct.specifications).length > 0 && (
+                <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Current Specifications:
+                  </Typography>
+                  <Grid container spacing={2}>
+                    {Object.entries(currentProduct.specifications).map(([key, value]) => (
+                      <Grid item xs={12} key={key}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box>
+                            <Typography variant="body2" fontWeight="bold">
+                              {key}:
+                            </Typography>
+                            <Typography variant="body2">
+                              {value}
+                            </Typography>
+                          </Box>
+                          <IconButton 
+                            size="small" 
+                            color="error" 
+                            onClick={() => handleRemoveSpecification(key)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                        <Divider sx={{ my: 1 }} />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Paper>
+              )}
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -868,7 +1082,7 @@ const AdminPage: React.FC = () => {
           <Button 
             onClick={handleAddOrUpdateProduct} 
             variant="contained"
-            disabled={loading}
+            disabled={loading || isUploading}
             sx={{
               background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
               '&:hover': {
@@ -876,7 +1090,7 @@ const AdminPage: React.FC = () => {
               },
             }}
           >
-            {loading ? <CircularProgress size={24} /> : isEditing ? 'Update' : 'Add'}
+            {(loading || isUploading) ? <CircularProgress size={24} /> : isEditing ? 'Update' : 'Add'}
           </Button>
         </DialogActions>
       </Dialog>

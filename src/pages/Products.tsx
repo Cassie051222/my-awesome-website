@@ -84,13 +84,11 @@ const Products = () => {
       return;
     }
 
-    // Apply the conversion rate for the cart item price
-    const adjustedPrice = product.price * 18.5;
-
+    // Use the direct price value - no conversion needed
     addItem({
       id: product.id.toString(),
       name: product.name,
-      price: adjustedPrice,
+      price: product.price,
       imageUrl: product.imageUrl,
       quantity: 1,
     });
@@ -114,8 +112,7 @@ const Products = () => {
       return;
     }
     
-    // Convert price to display price with conversion rate
-    const displayPrice = product.price * 18.5;
+    // Use direct price - no conversion needed
     
     // If the product is already in the wishlist, remove it
     if (isInWishlist(product.id)) {
@@ -126,11 +123,11 @@ const Products = () => {
         severity: 'success',
       });
     } else {
-      // Add to wishlist with the adjusted price
+      // Add to wishlist with the direct price
       addToWishlist({
         id: product.id,
         name: product.name,
-        price: displayPrice,
+        price: product.price,
         imageUrl: product.imageUrl,
         description: product.description,
         rating: product.rating,
@@ -171,11 +168,14 @@ const Products = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = selectedCategory === 0 || 
-                           (product.category === ['All', 'Laptops', 'Desktops', 'Components', 'Accessories'][selectedCategory]);
+    // Array of categories that matches the tab indices
+    const categories = ['All', 'Software', 'Laptops', 'Desktops', 'Accessories', 'Monitors', 'Storage', 'Audio', 'Networking'];
     
-    const price = product.price * 18.5;
-    const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
+    const matchesCategory = selectedCategory === 0 || 
+                           (product.category === categories[selectedCategory]);
+    
+    // We're using the database price directly here (in ZAR) - no conversion needed
+    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
     
     const matchesBrand = brandFilter === 'all' || product.brand === brandFilter;
     
@@ -336,10 +336,14 @@ const Products = () => {
             }}
           >
             <Tab label="All Products" />
+            <Tab label="Software" />
             <Tab label="Laptops" />
             <Tab label="Desktops" />
-            <Tab label="Components" />
             <Tab label="Accessories" />
+            <Tab label="Monitors" />
+            <Tab label="Storage" />
+            <Tab label="Audio" />
+            <Tab label="Networking" />
           </Tabs>
         </Box>
 
@@ -369,8 +373,8 @@ const Products = () => {
             {filteredProducts.length > 0 ? (
               <Grid container spacing={4}>
                 {filteredProducts.map((product) => {
-                  // Apply the conversion rate for display
-                  const displayPrice = product.price * 18.5;
+                  // Display price directly (no conversion needed) since price is already in ZAR in database
+                  const displayPrice = product.price;
                   
                   return (
                     <Grid item xs={12} sm={6} md={4} key={product.id}>
@@ -422,7 +426,7 @@ const Products = () => {
                             <Typography gutterBottom variant="h6" noWrap>
                               {product.name}
                             </Typography>
-                            <Rating value={product.rating || 4} precision={0.5} readOnly size="small" sx={{ mb: 1 }} />
+                            <Rating value={product.rating || 0} precision={0.5} readOnly size="small" sx={{ mb: 1 }} />
                             <Typography
                               variant="body2"
                               color="text.secondary"

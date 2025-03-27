@@ -351,51 +351,240 @@ export const getProductById = async (id: string): Promise<Product | null> => {
 // Get reviews for a product
 export const getProductReviews = async (productId: string): Promise<Review[]> => {
   try {
-    const reviewsQuery = query(
-      collection(db, REVIEWS_COLLECTION),
-      where('productId', '==', productId),
-      orderBy('date', 'desc')
-    );
+    console.log(`[getProductReviews] Fetching reviews for product ID: ${productId}`);
     
-    const querySnapshot = await getDocs(reviewsQuery);
+    // Check if productId is valid
+    if (!productId) {
+      console.error('Invalid product ID provided to getProductReviews');
+      return [];
+    }
     
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      date: doc.data().date.toDate()
-    } as Review));
+    // Try different collections - some implementations use 'reviews' and others use 'REVIEWS_COLLECTION'
+    const collections = ['reviews', REVIEWS_COLLECTION];
+    let allReviews: Review[] = [];
+    
+    for (const collectionName of collections) {
+      try {
+        const reviewsQuery = query(
+          collection(db, collectionName),
+          where('productId', '==', productId)
+        );
+        
+        const querySnapshot = await getDocs(reviewsQuery);
+        console.log(`[getProductReviews] Found ${querySnapshot.docs.length} reviews in ${collectionName}`);
+        
+        if (querySnapshot.docs.length > 0) {
+          const reviews = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            try {
+              // Handle date conversion safely
+              let reviewDate;
+              if (data.date) {
+                if (typeof data.date.toDate === 'function') {
+                  reviewDate = data.date.toDate();
+                } else if (data.date instanceof Date) {
+                  reviewDate = data.date;
+                } else {
+                  reviewDate = new Date(data.date);
+                }
+              } else {
+                reviewDate = new Date();
+              }
+              
+              return {
+                id: doc.id,
+                productId: data.productId || productId,
+                userId: data.userId || 'unknown',
+                userName: data.userName || 'Anonymous',
+                rating: typeof data.rating === 'number' ? data.rating : Number(data.rating || 0),
+                comment: data.comment || '',
+                date: reviewDate,
+                verified: data.verified || false
+              } as Review;
+            } catch (error) {
+              console.error('Error processing review document:', error);
+              return null;
+            }
+          }).filter(Boolean) as Review[];
+          
+          allReviews = [...allReviews, ...reviews];
+        }
+      } catch (error) {
+        console.error(`Error querying ${collectionName}:`, error);
+      }
+    }
+    
+    // Sort reviews by date
+    allReviews.sort((a, b) => b.date.getTime() - a.date.getTime());
+    return allReviews;
   } catch (error) {
     console.error('Error getting product reviews: ', error);
-    throw error;
+    return [];
   }
 };
 
 // Add a review for a product
 export const addProductReview = async (review: Review): Promise<string> => {
   try {
+    // Make sure the date is the current time (not a future date)
+    const currentDate = new Date();
+    
+    // Prepare the review data for Firestore
+    const reviewData = {
+      productId: review.productId,
+      userId: review.userId,
+      userName: review.userName,
+      rating: review.rating,
+      comment: review.comment,
+      date: currentDate,
+      verified: review.verified
+    };
+    
+    console.log("Submitting review to Firestore:", reviewData);
+    
     // Add the review
-    const reviewDocRef = await addDoc(collection(db, REVIEWS_COLLECTION), {
-      ...review,
-      date: new Date()
-    });
+    const reviewDocRef = await addDoc(collection(db, REVIEWS_COLLECTION), reviewData);
     
-    // Get all reviews for this product to calculate new average
-    const reviews = await getProductReviews(review.productId);
-    
-    // Calculate new average rating
-    const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
-    const averageRating = totalRating / reviews.length;
-    
-    // Update product with new rating and review count
-    const productRef = doc(db, PRODUCTS_COLLECTION, review.productId);
-    await updateDoc(productRef, {
-      rating: averageRating,
-      reviewCount: reviews.length
-    });
+    try {
+      // Get all reviews for this product to calculate new average
+      const reviewsQuery = query(
+        collection(db, REVIEWS_COLLECTION),
+        where('productId', '==', review.productId)
+      );
+      
+      const querySnapshot = await getDocs(reviewsQuery);
+      const reviews = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        rating: Number(doc.data().rating) // Ensure rating is a number
+      }));
+      
+      // Calculate new average rating
+      const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+      const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+      
+      // Update product with new rating and review count
+      const productRef = doc(db, PRODUCTS_COLLECTION, review.productId);
+      await updateDoc(productRef, {
+        rating: Number(averageRating.toFixed(1)), // Round to 1 decimal place
+        reviewCount: reviews.length
+      });
+    } catch (updateError) {
+      console.error('Error updating product rating:', updateError);
+      // Even if updating the product fails, we still return the review ID
+      // since the review was successfully added
+    }
     
     return reviewDocRef.id;
   } catch (error) {
-    console.error('Error adding product review: ', error);
+    console.error('Error adding product review:', error);
+    throw error;
+  }
+};
+
+// Delete a review for a product
+export const deleteProductReview = async (reviewId: string): Promise<void> => {
+  try {
+    console.log("Deleting review with ID:", reviewId);
+    
+    // Get the review data first to identify the product
+    const reviewRef = doc(db, REVIEWS_COLLECTION, reviewId);
+    const reviewDoc = await getDoc(reviewRef);
+    
+    if (!reviewDoc.exists()) {
+      throw new Error("Review not found");
+    }
+    
+    const reviewData = reviewDoc.data();
+    const productId = reviewData.productId;
+    
+    // Delete the review
+    await deleteDoc(reviewRef);
+    
+    // Update the product rating and review count
+    try {
+      // Get all remaining reviews for this product
+      const reviewsQuery = query(
+        collection(db, REVIEWS_COLLECTION),
+        where('productId', '==', productId)
+      );
+      
+      const querySnapshot = await getDocs(reviewsQuery);
+      const reviews = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        rating: Number(doc.data().rating) // Ensure rating is a number
+      }));
+      
+      // Calculate new average rating
+      const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+      const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+      
+      // Update product with new rating and review count
+      const productRef = doc(db, PRODUCTS_COLLECTION, productId);
+      await updateDoc(productRef, {
+        rating: Number(averageRating.toFixed(1)), // Round to 1 decimal place
+        reviewCount: reviews.length
+      });
+      
+      console.log(`Updated product ${productId} with new rating ${averageRating.toFixed(1)} and review count ${reviews.length}`);
+    } catch (updateError) {
+      console.error('Error updating product rating after review deletion:', updateError);
+    }
+  } catch (error) {
+    console.error('Error deleting product review:', error);
+    throw error;
+  }
+};
+
+// Update an existing review
+export const updateProductReview = async (review: Review): Promise<void> => {
+  try {
+    if (!review.id) {
+      throw new Error("Review ID is required for updating");
+    }
+    
+    console.log("Updating review:", review);
+    
+    // Prepare the review data for Firestore update
+    const reviewData = {
+      rating: review.rating,
+      comment: review.comment,
+      date: new Date(), // Update the date to reflect the edit time
+    };
+    
+    // Update the review
+    const reviewRef = doc(db, REVIEWS_COLLECTION, review.id);
+    await updateDoc(reviewRef, reviewData);
+    
+    // Update the product rating
+    try {
+      // Get all reviews for this product
+      const reviewsQuery = query(
+        collection(db, REVIEWS_COLLECTION),
+        where('productId', '==', review.productId)
+      );
+      
+      const querySnapshot = await getDocs(reviewsQuery);
+      const reviews = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        rating: Number(doc.data().rating) // Ensure rating is a number
+      }));
+      
+      // Calculate new average rating
+      const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+      const averageRating = reviews.length > 0 ? totalRating / reviews.length : 0;
+      
+      // Update product with new rating
+      const productRef = doc(db, PRODUCTS_COLLECTION, review.productId);
+      await updateDoc(productRef, {
+        rating: Number(averageRating.toFixed(1)), // Round to 1 decimal place
+      });
+      
+      console.log(`Updated product ${review.productId} with new rating ${averageRating.toFixed(1)}`);
+    } catch (updateError) {
+      console.error('Error updating product rating after review update:', updateError);
+    }
+  } catch (error) {
+    console.error('Error updating product review:', error);
     throw error;
   }
 }; 
