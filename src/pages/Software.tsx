@@ -62,6 +62,8 @@ const Software = () => {
   const [lightboxImage, setLightboxImage] = useState('');
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const [showInvoicingScreen, setShowInvoicingScreen] = useState(false);
+  const [activeTab, setActiveTab] = useState('Information'); // Bottom tabs
+  const [activeTopTab, setActiveTopTab] = useState('Invoice Items'); // Top tabs
 
   const invoicingSteps = [
     {
@@ -1101,35 +1103,49 @@ const Software = () => {
                       <Box sx={{ 
                         display: 'flex',
                         borderBottom: '1px solid #ccc',
-                        backgroundColor: '#e6f2f9'
+                        backgroundColor: 'transparent',
+                        position: 'relative',
+                        zIndex: 2
                       }}>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#1976d2', 
-                          cursor: 'pointer', 
-                          borderRight: '1px solid #ccc', 
-                          fontSize: '0.8rem', 
-                          color: '#ffffff',
-                          fontWeight: 'bold',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          top: '1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTopTab === 'Invoice Items' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer', 
+                            borderRight: '1px solid #ccc',
+                            borderTop: '1px solid #ccc',
+                            borderLeft: '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTopTab === 'Invoice Items' ? '#ffffff' : '#000000',
+                            fontWeight: activeTopTab === 'Invoice Items' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            top: '1px',
+                            marginLeft: '4px'
+                          }}
+                          onClick={() => setActiveTopTab('Invoice Items')}
+                        >
                           Invoice Items
                         </Box>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#ffffff', 
-                          cursor: 'pointer', 
-                          borderRight: '1px solid #ccc', 
-                          fontSize: '0.8rem', 
-                          color: '#000000',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          top: '1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTopTab === 'Document Summary' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer', 
+                            borderRight: '1px solid #ccc',
+                            borderTop: '1px solid #ccc',
+                            borderLeft: '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTopTab === 'Document Summary' ? '#ffffff' : '#000000',
+                            fontWeight: activeTopTab === 'Document Summary' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            top: '1px'
+                          }}
+                          onClick={() => setActiveTopTab('Document Summary')}
+                        >
                           Document Summary
                         </Box>
                       </Box>
@@ -1187,81 +1203,109 @@ const Software = () => {
                       <Box sx={{ 
                         display: 'flex',
                         borderTop: '1px solid #ccc',
-                        backgroundColor: '#e6f2f9'
+                        backgroundColor: 'transparent',
+                        position: 'relative',
+                        zIndex: 2
                       }}>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#1976d2', 
-                          cursor: 'pointer', 
-                          borderRight: '1px solid #ccc', 
-                          fontSize: '0.8rem', 
-                          color: '#ffffff',
-                          fontWeight: 'bold',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          bottom: '1px',
-                          marginTop: '-1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTab === 'Information' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer', 
+                            borderRight: '1px solid #ccc',
+                            borderTop: activeTab === 'Information' ? '1px solid #1976d2' : '1px solid #ccc',
+                            borderLeft: '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTab === 'Information' ? '#ffffff' : '#000000',
+                            fontWeight: activeTab === 'Information' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            bottom: '-1px',
+                            marginLeft: '4px'
+                          }}
+                          onClick={() => setActiveTab('Information')}
+                        >
                           Information
                         </Box>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#ffffff', 
-                          cursor: 'pointer', 
-                          borderRight: '1px solid #ccc', 
-                          fontSize: '0.8rem', 
-                          color: '#000000',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          bottom: '1px',
-                          marginTop: '-1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTab === 'Additional Information' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer', 
+                            borderRight: '1px solid #ccc',
+                            borderTop: activeTab === 'Additional Information' ? '1px solid #1976d2' : '1px solid #ccc',
+                            borderLeft: activeTab === 'Additional Information' ? '1px solid #1976d2' : '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTab === 'Additional Information' ? '#ffffff' : '#000000',
+                            fontWeight: activeTab === 'Additional Information' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            bottom: '-1px'
+                          }}
+                          onClick={() => setActiveTab('Additional Information')}
+                        >
                           Additional Information
                         </Box>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#ffffff', 
-                          cursor: 'pointer', 
-                          borderRight: '1px solid #ccc', 
-                          fontSize: '0.8rem', 
-                          color: '#000000',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          bottom: '1px',
-                          marginTop: '-1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTab === 'Line Information' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer', 
+                            borderRight: '1px solid #ccc',
+                            borderTop: activeTab === 'Line Information' ? '1px solid #1976d2' : '1px solid #ccc',
+                            borderLeft: activeTab === 'Line Information' ? '1px solid #1976d2' : '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTab === 'Line Information' ? '#ffffff' : '#000000',
+                            fontWeight: activeTab === 'Line Information' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            bottom: '-1px'
+                          }}
+                          onClick={() => setActiveTab('Line Information')}
+                        >
                           Line Information
                         </Box>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#ffffff', 
-                          cursor: 'pointer', 
-                          borderRight: '1px solid #ccc', 
-                          fontSize: '0.8rem', 
-                          color: '#000000',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          bottom: '1px',
-                          marginTop: '-1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTab === 'Item Characteristics' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer', 
+                            borderRight: '1px solid #ccc',
+                            borderTop: activeTab === 'Item Characteristics' ? '1px solid #1976d2' : '1px solid #ccc',
+                            borderLeft: activeTab === 'Item Characteristics' ? '1px solid #1976d2' : '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTab === 'Item Characteristics' ? '#ffffff' : '#000000',
+                            fontWeight: activeTab === 'Item Characteristics' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            bottom: '-1px'
+                          }}
+                          onClick={() => setActiveTab('Item Characteristics')}
+                        >
                           Item Characteristics
                         </Box>
-                        <Box sx={{ 
-                          padding: '5px 10px', 
-                          backgroundColor: '#ffffff', 
-                          cursor: 'pointer', 
-                          fontSize: '0.8rem', 
-                          color: '#000000',
-                          borderTopLeftRadius: '8px',
-                          borderTopRightRadius: '8px',
-                          position: 'relative',
-                          bottom: '1px',
-                          marginTop: '-1px'
-                        }}>
+                        <Box 
+                          sx={{ 
+                            padding: '5px 10px', 
+                            backgroundColor: activeTab === 'Options' ? '#1976d2' : '#ffffff', 
+                            cursor: 'pointer',
+                            borderRight: '1px solid #ccc',
+                            borderTop: activeTab === 'Options' ? '1px solid #1976d2' : '1px solid #ccc',
+                            borderLeft: activeTab === 'Options' ? '1px solid #1976d2' : '1px solid #ccc',
+                            fontSize: '0.8rem', 
+                            color: activeTab === 'Options' ? '#ffffff' : '#000000',
+                            fontWeight: activeTab === 'Options' ? 'bold' : 'normal',
+                            borderTopLeftRadius: '8px',
+                            borderTopRightRadius: '8px',
+                            position: 'relative',
+                            bottom: '-1px'
+                          }}
+                          onClick={() => setActiveTab('Options')}
+                        >
                           Options
                         </Box>
                       </Box>
@@ -1269,66 +1313,255 @@ const Software = () => {
                       {/* Payment Options and Details Container */}
                       <Box sx={{ 
                         display: 'flex', 
-                        borderTop: '1px solid #ccc',
+                        border: '1px solid #ccc',
+                        borderTop: 'none',
                         backgroundColor: '#ffffff',
                         marginBottom: '40px', // Add margin to prevent overlap with footer
+                        position: 'relative',
+                        zIndex: 1
                       }}>
-                        {/* Payment Options - Arranged in 3x3 grid as shown in screenshot */}
-                        <Box sx={{ 
-                          display: 'flex',
-                          flexDirection: 'column',
-                          backgroundColor: '#ffffff',
-                          padding: '5px',
-                          flex: 1
-                        }}>
-                          {/* First row of buttons */}
-                          <Box sx={{ display: 'flex', marginBottom: '5px' }}>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Cash</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F4)</Typography>
+                        {activeTab === 'Information' && (
+                          /* Payment Options - Arranged in 3x3 grid as shown in screenshot */
+                          <Box sx={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: '#ffffff',
+                            padding: '5px',
+                            flex: 1
+                          }}>
+                            {/* First row of buttons */}
+                            <Box sx={{ display: 'flex', marginBottom: '5px' }}>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Cash</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F4)</Typography>
+                              </Box>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Split Tender</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Shift+F4)</Typography>
+                              </Box>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Gratuity</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+Shift+G)</Typography>
+                              </Box>
                             </Box>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Split Tender</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Shift+F4)</Typography>
+                            
+                            {/* Second row of buttons */}
+                            <Box sx={{ display: 'flex', marginBottom: '5px' }}>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Card</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F3)</Typography>
+                              </Box>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Account</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F9)</Typography>
+                              </Box>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Void Sale</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+F9)</Typography>
+                              </Box>
                             </Box>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Gratuity</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+Shift+G)</Typography>
+                            
+                            {/* Third row of buttons */}
+                            <Box sx={{ display: 'flex' }}>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Pro-Forma</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+F2)</Typography>
+                              </Box>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Customer</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+Shift+C)</Typography>
+                              </Box>
+                              <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
+                                <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Options</Typography>
+                                <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Shift+F1)</Typography>
+                              </Box>
                             </Box>
                           </Box>
-                          
-                          {/* Second row of buttons */}
-                          <Box sx={{ display: 'flex', marginBottom: '5px' }}>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Card</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F3)</Typography>
-                            </Box>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Account</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(F9)</Typography>
-                            </Box>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Void Sale</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+F9)</Typography>
+                        )}
+                        
+                        {activeTab === 'Additional Information' && (
+                          <Box sx={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: '#ffffff',
+                            padding: '10px',
+                            flex: 1
+                          }}>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                              Additional Invoice Information
+                            </Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Invoice Date:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>2023/05/10</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Invoice Number:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>INV-2023-0524</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Customer:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>Walk-in Customer</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Payment Terms:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>Cash on Delivery</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Reference:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>POS Sale</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Sales Person:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>John Smith</Box>
+                              </Box>
                             </Box>
                           </Box>
-                          
-                          {/* Third row of buttons */}
-                          <Box sx={{ display: 'flex' }}>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Pro-Forma</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+F2)</Typography>
-                            </Box>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Customer</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Ctrl+Shift+C)</Typography>
-                            </Box>
-                            <Box sx={{ border: '1px solid #ccc', width: '100px', marginRight: '5px', textAlign: 'center', padding: '5px', backgroundColor: '#f0f0f0' }}>
-                              <Typography sx={{ fontSize: '0.7rem', color: '#000000', fontWeight: 'bold' }}>Options</Typography>
-                              <Typography sx={{ fontSize: '0.6rem', color: '#000000' }}>(Shift+F1)</Typography>
+                        )}
+                        
+                        {activeTab === 'Line Information' && (
+                          <Box sx={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: '#ffffff',
+                            padding: '10px',
+                            flex: 1
+                          }}>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                              Line Item Information
+                            </Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Serial Number:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>N/A</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Batch Number:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>BT-229845</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Expiry Date:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>2024/06/30</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Line Note:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>No special instructions</Box>
+                              </Box>
                             </Box>
                           </Box>
-                        </Box>
+                        )}
+                        
+                        {activeTab === 'Item Characteristics' && (
+                          <Box sx={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: '#ffffff',
+                            padding: '10px',
+                            flex: 1
+                          }}>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                              Item Characteristics
+                            </Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Weight:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>0.5 kg</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Color:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>N/A</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Size:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>Medium</Box>
+                              </Box>
+                              <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
+                                <Box sx={{ width: '120px', padding: '4px', fontSize: '0.75rem', color: '#000000', fontWeight: 'bold' }}>Material:</Box>
+                                <Box sx={{ flex: 1, padding: '4px', fontSize: '0.75rem', color: '#000000' }}>N/A</Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        )}
+                        
+                        {activeTab === 'Options' && (
+                          <Box sx={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: '#ffffff',
+                            padding: '10px',
+                            flex: 1
+                          }}>
+                            <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#1976d2', mb: 2 }}>
+                              Invoice Options
+                            </Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                              <Box sx={{ 
+                                padding: '8px', 
+                                border: '1px solid #ccc', 
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  backgroundColor: '#f5f5f5'
+                                }
+                              }}>
+                                <Typography sx={{ fontSize: '0.8rem', color: '#000000', fontWeight: 'bold' }}>
+                                  Print Invoice
+                                </Typography>
+                              </Box>
+                              <Box sx={{ 
+                                padding: '8px', 
+                                border: '1px solid #ccc', 
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  backgroundColor: '#f5f5f5'
+                                }
+                              }}>
+                                <Typography sx={{ fontSize: '0.8rem', color: '#000000', fontWeight: 'bold' }}>
+                                  Email Invoice
+                                </Typography>
+                              </Box>
+                              <Box sx={{ 
+                                padding: '8px', 
+                                border: '1px solid #ccc', 
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  backgroundColor: '#f5f5f5'
+                                }
+                              }}>
+                                <Typography sx={{ fontSize: '0.8rem', color: '#000000', fontWeight: 'bold' }}>
+                                  Discount Invoice
+                                </Typography>
+                              </Box>
+                              <Box sx={{ 
+                                padding: '8px', 
+                                border: '1px solid #ccc', 
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  backgroundColor: '#f5f5f5'
+                                }
+                              }}>
+                                <Typography sx={{ fontSize: '0.8rem', color: '#000000', fontWeight: 'bold' }}>
+                                  Apply Voucher
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                        )}
                         
                         {/* Item Details and Document Totals Side by Side */}
                         <Box sx={{ 
