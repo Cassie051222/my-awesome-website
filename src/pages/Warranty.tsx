@@ -377,7 +377,7 @@ const Warranty = () => {
                   Sunday: Closed for in-person visits (remote support still available)
                 </Typography>
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                  Address: 35 Ellenburger Street, Wilgehof, Bloemfontein, 9301
+                  Address: 35 Ellenberger Street, Wilgehof, Bloemfontein, 9301
                 </Typography>
               </Box>
             </Paper>

@@ -327,7 +327,7 @@ const Returns = () => {
               <Typography variant="body1">
                 Phone: <strong>083 334 1547</strong><br />
                 Email: <strong>office@smart-trade.biz</strong><br />
-                Address: <strong>35 Ellenburger Street, Wilgehof, Bloemfontein, 9301</strong>
+                Address: <strong>35 Ellenberger Street, Wilgehof, Bloemfontein, 9301</strong>
               </Typography>
             </Paper>
           </Grid>

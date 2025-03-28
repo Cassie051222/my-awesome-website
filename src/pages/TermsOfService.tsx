@@ -222,7 +222,7 @@ const TermsOfService = () => {
             </Typography>
             <Typography variant="body1">
               Smart-Trade<br />
-              35 Ellenburger Street<br />
+              35 Ellenberger Street<br />
               Wilgehof, Bloemfontein, 9301<br />
               Phone: 083 334 1547<br />
               Email: office@smart-trade.biz

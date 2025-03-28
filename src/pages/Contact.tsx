@@ -67,8 +67,8 @@ const Contact = () => {
     {
       icon: <LocationOnIcon sx={{ fontSize: 40, color: '#FF6B00' }} />,
       title: 'Address',
-      content: '35 Ellenburger Street, Wilgehof, Bloemfontein, Freestate, 9301',
-      link: 'https://maps.google.com/?q=35+Ellenburger+Street,+Wilgehof,+Bloemfontein,+9301,+South+Africa',
+      content: '35 Ellenberger Street, Wilgehof, Bloemfontein, Freestate, 9301',
+      link: 'https://maps.google.com/?q=35+Ellenberger+Street,+Wilgehof,+Bloemfontein,+9301,+South+Africa',
     },
   ];
 
