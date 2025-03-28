@@ -1,0 +1,1 @@
+Remove the second Products Select List modal that starts at line 3345 with comment '/* Product Selection Modal */' and ends at line 3541 right before the closing Box tag.

@@ -3325,8 +3325,218 @@ const Software = () => {
           />
         </Box>
       )}
+
+      {/* Product Selection Modal */}
+      {productSelectionOpen && (
+        <Box sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }} onClick={() => setProductSelectionOpen(false)}>
+          <Box 
+            sx={{ 
+              width: '80%',
+              maxWidth: '900px',
+              maxHeight: '80%',
+              backgroundColor: 'white',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <Box sx={{ 
+              backgroundColor: '#e9e9e9',
+              padding: '10px 15px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '1px solid #ccc'
+            }}>
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#000000' }}>
+                Products Select List
+              </Typography>
+              <Box 
+                sx={{ 
+                  width: '20px', 
+                  height: '20px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  '&:hover': { backgroundColor: '#d0d0d0', borderRadius: '50%' }
+                }}
+                onClick={() => setProductSelectionOpen(false)}
+              >
+                ×
+              </Box>
+            </Box>
+            
+            {/* Column Headers */}
+            <Box sx={{ 
+              display: 'flex',
+              backgroundColor: '#f0f0f0',
+              borderBottom: '1px solid #ccc',
+              padding: '5px 0'
+            }}>
+              <Box sx={{ width: '120px', padding: '5px 10px', fontSize: '0.8rem', fontWeight: 'bold', color: '#000000' }}>
+                Product Code
+              </Box>
+              <Box sx={{ flex: 1, padding: '5px 10px', fontSize: '0.8rem', fontWeight: 'bold', color: '#000000' }}>
+                Description
+              </Box>
+              <Box sx={{ width: '120px', padding: '5px 10px', fontSize: '0.8rem', fontWeight: 'bold', color: '#000000' }}>
+                Stock On Hand
+              </Box>
+            </Box>
+            
+            {/* Search Filters */}
+            <Box sx={{ 
+              display: 'flex', 
+              padding: '10px',
+              backgroundColor: '#f9f9f9',
+              borderBottom: '1px solid #ccc'
+            }}>
+              <Box 
+                component="input"
+                placeholder="Search products..."
+                sx={{ 
+                  flex: 1,
+                  padding: '5px 10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem'
+                }}
+              />
+              <Box sx={{ 
+                marginLeft: '10px',
+                padding: '5px 10px',
+                backgroundColor: '#f0ad4e',
+                color: 'white',
+                borderRadius: '4px',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                '&:hover': { backgroundColor: '#ec971f' }
+              }}>
+                Search
+              </Box>
+            </Box>
+            
+            {/* Product List */}
+            <Box sx={{ 
+              flex: 1,
+              overflow: 'auto',
+              padding: '10px'
+            }}>
+              <Box sx={{ width: '100%' }}>
+                {productCatalog.map((product, index) => (
+                  <Box 
+                    key={product.code}
+                    sx={{ 
+                      display: 'flex',
+                      borderBottom: '1px solid #eee',
+                      padding: '5px 0',
+                      backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white',
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: '#e9f5ff' }
+                    }}
+                    onClick={() => handleProductSelect(product)}
+                  >
+                    <Box sx={{ width: '120px', padding: '5px 10px', fontSize: '0.75rem', color: '#000000' }}>
+                      {product.code}
+                    </Box>
+                    <Box sx={{ flex: 1, padding: '5px 10px', fontSize: '0.75rem', color: '#000000' }}>
+                      {product.description}
+                    </Box>
+                    <Box sx={{ width: '120px', padding: '5px 10px', fontSize: '0.75rem', color: '#000000', textAlign: 'right' }}>
+                      {product.stockOnHand.toFixed(2)}
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+            
+            {/* Bottom Buttons */}
+            <Box sx={{ 
+              padding: '10px',
+              backgroundColor: '#f9f9f9',
+              borderTop: '1px solid #ccc',
+              display: 'flex',
+              justifyContent: 'space-between'
+            }}>
+              <Box sx={{ display: 'flex', gap: '10px' }}>
+                <Box sx={{ 
+                  padding: '5px 15px',
+                  backgroundColor: '#5cb85c',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#449d44' }
+                }}>
+                  Show Complete List (Ctrl+Shift+F11)
+                </Box>
+                <Box sx={{ 
+                  padding: '5px 15px',
+                  backgroundColor: '#5bc0de',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#31b0d5' }
+                }}>
+                  Advanced Search (Ctrl+F11)
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', gap: '10px' }}>
+                <Box sx={{ 
+                  padding: '5px 15px',
+                  backgroundColor: '#f0ad4e',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#ec971f' }
+                }}>
+                  Clear Selections (Ctrl+F2)
+                </Box>
+                <Box sx={{ 
+                  padding: '5px 15px',
+                  backgroundColor: '#5cb85c',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  '&:hover': { backgroundColor: '#449d44' }
+                }}>
+                  Show Selected Items Only (Ctrl+Shift+F12)
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };
 
 export default Software;
+
