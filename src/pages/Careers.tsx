@@ -537,11 +537,17 @@ const Careers = () => {
       </Container>
 
       {/* Application Dialog */}
-      <Dialog 
+      <Dialog
         open={applyDialogOpen} 
         onClose={handleCloseApplyDialog}
         maxWidth="md"
         fullWidth
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
+          }
+        }}
       >
         <DialogTitle>
           Apply for {currentJob?.title}

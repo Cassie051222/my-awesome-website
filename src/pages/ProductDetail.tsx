@@ -509,6 +509,43 @@ const ProductDetail = () => {
     }
   }, [user, product]);
 
+  // Share product functionality
+  const handleShare = async () => {
+    if (!product) return;
+    
+    const shareData = {
+      title: product.name,
+      text: `Check out this product: ${product.name}`,
+      url: window.location.href,
+    };
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setNotification({
+          open: true,
+          message: 'Product shared successfully!',
+          severity: 'success',
+        });
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        await navigator.clipboard.writeText(window.location.href);
+        setNotification({
+          open: true,
+          message: 'Link copied to clipboard!',
+          severity: 'success',
+        });
+      }
+    } catch (error) {
+      console.error('Error sharing product:', error);
+      setNotification({
+        open: true,
+        message: 'Failed to share product. Please try again.',
+        severity: 'error',
+      });
+    }
+  };
+
   const renderLoadingSkeleton = () => (
     <Box sx={{ pb: 8, textAlign: 'center' }}>
       <Container maxWidth="lg">
@@ -714,7 +751,7 @@ const ProductDetail = () => {
                   <IconButton aria-label="Add to favorites">
                     <FavoriteIcon />
                   </IconButton>
-                  <IconButton aria-label="Share">
+                  <IconButton aria-label="Share" onClick={handleShare}>
                     <ShareIcon />
                   </IconButton>
                 </Box>
@@ -983,7 +1020,18 @@ const ProductDetail = () => {
       </Snackbar>
       
       {/* Review Dialog */}
-      <Dialog open={reviewDialogOpen} onClose={handleReviewDialogClose} maxWidth="sm" fullWidth>
+      <Dialog 
+        open={reviewDialogOpen} 
+        onClose={handleReviewDialogClose} 
+        maxWidth="sm" 
+        fullWidth
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
+          }
+        }}
+      >
         <DialogTitle>{editingReview ? 'Edit Your Review' : 'Write a Review'}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -20,6 +20,7 @@ import {
   FormControl,
   FormLabel,
   Paper,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
@@ -31,6 +32,14 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import { createOrder, Order } from '../services/OrderService';
 
 const steps = ['Shipping Information', 'Payment Details', 'Review Order'];
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Checkout = () => {
   const theme = useTheme();

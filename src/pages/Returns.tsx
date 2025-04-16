@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Typography, Box, Paper, Grid, Divider, useTheme, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Container, Typography, Box, Paper, Grid, Divider, useTheme, List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, AccordionDetails, Dialog } from '@mui/material';
 import { motion } from 'framer-motion';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
@@ -7,6 +7,14 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Returns = () => {
   const theme = useTheme();

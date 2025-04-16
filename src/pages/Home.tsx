@@ -9,6 +9,7 @@ import {
   CardMedia,
   Button,
   useTheme,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -18,6 +19,14 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 // import restaurant from '../assets/images/business/restaurant.jpg';
 // import butchery from '../assets/images/business/butchery.jpg';
 // etc.
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Home = () => {
   const theme = useTheme();

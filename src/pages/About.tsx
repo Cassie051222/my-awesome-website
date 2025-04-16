@@ -9,6 +9,8 @@ import {
   Divider,
   useTheme,
   Paper,
+  Avatar,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -17,6 +19,14 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import FactoryIcon from '@mui/icons-material/Factory';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const About = () => {
   const theme = useTheme();

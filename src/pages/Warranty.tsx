@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Typography, Box, Paper, Grid, Divider, useTheme, Card, CardContent } from '@mui/material';
+import { Container, Typography, Box, Paper, Grid, Divider, useTheme, Card, CardContent, Accordion, AccordionSummary, AccordionDetails, Dialog } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 import { motion } from 'framer-motion';
 import BuildIcon from '@mui/icons-material/Build';
@@ -8,6 +8,14 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import WarningIcon from '@mui/icons-material/Warning';
 import HandymanIcon from '@mui/icons-material/Handyman';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Warranty = () => {
   const theme = useTheme();

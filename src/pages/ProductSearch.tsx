@@ -23,6 +23,7 @@ import {
   Snackbar,
   Alert,
   useTheme,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +34,14 @@ import SortIcon from '@mui/icons-material/Sort';
 import { getProducts, getProductCategories, Product } from '../services/ProductService';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const ProductSearch = () => {
   const theme = useTheme();

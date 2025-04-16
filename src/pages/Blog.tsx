@@ -11,7 +11,9 @@ import {
   Chip,
   CircularProgress,
   Divider,
-  useTheme
+  useTheme,
+  Dialog,
+  Button
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -27,6 +29,14 @@ interface NewsArticle {
   };
   category?: string;
 }
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Blog: React.FC = () => {
   const theme = useTheme();

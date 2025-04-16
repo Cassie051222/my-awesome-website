@@ -18,7 +18,8 @@ import {
   Divider,
   Tabs,
   Tab,
-  alpha
+  alpha,
+  Dialog
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -54,6 +55,14 @@ function TabPanel(props: {
     </div>
   );
 }
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const FAQ = () => {
   const theme = useTheme();

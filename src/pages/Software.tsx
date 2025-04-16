@@ -3062,6 +3062,12 @@ const Software = () => {
             backgroundImage: 'none',
           }
         }}
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
+          }
+        }}
       >
         <DialogTitle>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -3181,6 +3187,12 @@ const Software = () => {
           sx: {
             backgroundColor: theme.palette.mode === 'dark' ? '#1E1E1E' : '#ffffff',
             backgroundImage: 'none',
+          }
+        }}
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
           }
         }}
       >

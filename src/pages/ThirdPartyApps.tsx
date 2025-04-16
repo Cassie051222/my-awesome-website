@@ -9,9 +9,18 @@ import {
   CardMedia,
   Button,
   useTheme,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const ThirdPartyApps = () => {
   const theme = useTheme();

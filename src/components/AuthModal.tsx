@@ -159,6 +159,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
             borderRadius: 2,
           }
         }}
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
+          }
+        }}
       >
         <DialogTitle sx={{ 
           background: theme.palette.mode === 'dark' 
@@ -386,6 +392,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
             width: '100%',
             maxWidth: 450,
             borderRadius: 2,
+          }
+        }}
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
           }
         }}
       >

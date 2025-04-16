@@ -1,6 +1,14 @@
 import React from 'react';
-import { Container, Typography, Box, Paper, Divider, useTheme } from '@mui/material';
+import { Container, Typography, Box, Paper, Divider, useTheme, Dialog } from '@mui/material';
 import { motion } from 'framer-motion';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const PrivacyPolicy = () => {
   const theme = useTheme();

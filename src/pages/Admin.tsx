@@ -869,7 +869,18 @@ const AdminPage: React.FC = () => {
       </Container>
 
       {/* Product Dialog */}
-      <Dialog open={productDialogOpen} onClose={() => setProductDialogOpen(false)} maxWidth="md" fullWidth>
+      <Dialog 
+        open={productDialogOpen} 
+        onClose={() => setProductDialogOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
+          }
+        }}
+      >
         <DialogTitle>{isEditing ? 'Edit Product' : 'Add New Product'}</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={3}>
@@ -1101,7 +1112,18 @@ const AdminPage: React.FC = () => {
       </Dialog>
 
       {/* FAQ Dialog */}
-      <Dialog open={faqDialogOpen} onClose={() => setFaqDialogOpen(false)} maxWidth="md" fullWidth>
+      <Dialog 
+        open={faqDialogOpen} 
+        onClose={() => setFaqDialogOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+        sx={{
+          "& .MuiDialog-container": {
+            alignItems: "flex-start",
+            paddingTop: 5
+          }
+        }}
+      >
         <DialogTitle>{isEditing ? 'Edit FAQ' : 'Add New FAQ'}</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={3}>

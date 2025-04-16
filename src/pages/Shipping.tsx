@@ -1,10 +1,18 @@
 import React from 'react';
-import { Container, Typography, Box, Paper, Grid, Divider, Chip, useTheme } from '@mui/material';
+import { Container, Typography, Box, Paper, Grid, Divider, Chip, useTheme, Dialog } from '@mui/material';
 import { motion } from 'framer-motion';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PaymentIcon from '@mui/icons-material/Payment';
 import InfoIcon from '@mui/icons-material/Info';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Shipping = () => {
   const theme = useTheme();

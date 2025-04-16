@@ -25,6 +25,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -36,6 +37,14 @@ import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 import { getProducts, Product } from '../services/ProductService';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Products = () => {
   const theme = useTheme();

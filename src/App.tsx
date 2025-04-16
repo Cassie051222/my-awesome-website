@@ -27,6 +27,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Blog from './pages/Blog';
 import AdminPage from './pages/Admin';
 import { seedProducts } from './services/ProductService';
+import ScrollToTop from './components/ScrollToTop';
 
 const App: React.FC = () => {
   const [themeMode, setThemeMode] = useState<PaletteMode>('light');
@@ -240,9 +241,9 @@ const App: React.FC = () => {
   });
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <CartProvider>
           <WishlistProvider>
             <Router>
@@ -253,6 +254,7 @@ const App: React.FC = () => {
                 open={authModalOpen}
                 onClose={() => setAuthModalOpen(false)}
               />
+              <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/software" element={<Software />} />
@@ -284,8 +286,8 @@ const App: React.FC = () => {
             </Router>
           </WishlistProvider>
         </CartProvider>
-      </AuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 };
 

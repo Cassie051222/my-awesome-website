@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -12,6 +12,7 @@ import {
   Divider,
   useTheme,
   Alert,
+  Dialog,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -19,6 +20,14 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Cart = () => {
   const theme = useTheme();

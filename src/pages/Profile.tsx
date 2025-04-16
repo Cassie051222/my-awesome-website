@@ -22,6 +22,7 @@ import {
   Badge,
   CircularProgress,
   Alert,
+  Dialog,
 } from '@mui/material';
 import { Edit as EditIcon, Save as SaveIcon, Cancel as CancelIcon } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
@@ -60,6 +61,14 @@ function TabPanel(props: TabPanelProps) {
 interface ProfileProps {
   initialTab?: number;
 }
+
+// Add dialogStyle constant for future Dialog components
+const dialogStyle = {
+  "& .MuiDialog-container": {
+    alignItems: "flex-start",
+    paddingTop: 5
+  }
+};
 
 const Profile = ({ initialTab = 0 }: ProfileProps) => {
   const theme = useTheme();
