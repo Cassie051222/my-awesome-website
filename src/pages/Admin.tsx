@@ -89,6 +89,7 @@ interface FAQ {
   answer: string;
   category: string;
   dateAdded: string;
+  order: number;
 }
 
 const AdminPage: React.FC = () => {
@@ -119,6 +120,7 @@ const AdminPage: React.FC = () => {
     answer: '',
     category: 'General',
     dateAdded: new Date().toISOString(),
+    order: 0,
   });
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -244,6 +246,7 @@ const AdminPage: React.FC = () => {
         answer: '',
         category: 'General',
         dateAdded: new Date().toISOString(),
+        order: 0,
       });
       setIsEditing(false);
     }
@@ -420,6 +423,7 @@ const AdminPage: React.FC = () => {
           answer: currentFAQ.answer,
           category: currentFAQ.category,
           dateAdded: new Date().toISOString(),
+          order: 0,
         });
         setSnackbar({
           open: true,
@@ -517,6 +521,7 @@ const AdminPage: React.FC = () => {
                 answer: item.answer || '',
                 category: item.category || 'General',
                 dateAdded: new Date().toISOString(),
+                order: 0,
               };
               
               await addDoc(collection(db, 'faqs'), faq);

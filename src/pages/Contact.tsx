@@ -40,15 +40,16 @@ const Contact = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
+    // Don't prevent default - allow normal form submission to Web3Forms
+    
+    // Show the user a success message
     setSnackbar({
       open: true,
       message: 'Message sent successfully! We will get back to you soon.',
       severity: 'success',
     });
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    
+    // Reset will happen after redirect/reload
   };
 
   const contactInfo = [
@@ -238,7 +239,19 @@ const Contact = () => {
                     Fill out the form below and we'll get back to you as soon as possible.
                   </Typography>
 
-                  <form onSubmit={handleSubmit}>
+                  <form 
+                    onSubmit={handleSubmit}
+                    action="https://api.web3forms.com/submit"
+                    method="POST"
+                    style={{ width: '100%' }}
+                  >
+                    <input type="hidden" name="access_key" value="dadfd84a-c592-44c3-94a5-03e6d8373c3e" />
+                    <input type="hidden" name="subject" value={formData.subject || "New Message from SmartTrade Website"} />
+                    <input type="hidden" name="from_name" value="SmartTrade Website" />
+                    <input type="hidden" name="replyto" value={formData.email} />
+                    <input type="hidden" name="redirect" value={window.location.href} />
+                    <input type="checkbox" name="botcheck" style={{ display: 'none' }} />
+                    
                     <Grid container spacing={3}>
                       <Grid item xs={12} sm={6}>
                         <TextField
@@ -250,20 +263,8 @@ const Contact = () => {
                           required
                           sx={{
                             '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.3)',
-                              },
                               '&:hover fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.5)',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#FF6B00',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: 'text.secondary',
-                              '&.Mui-focused': {
-                                color: '#FF6B00',
+                                borderColor: 'primary.main',
                               },
                             },
                           }}
@@ -280,20 +281,8 @@ const Contact = () => {
                           required
                           sx={{
                             '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.3)',
-                              },
                               '&:hover fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.5)',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#FF6B00',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: 'text.secondary',
-                              '&.Mui-focused': {
-                                color: '#FF6B00',
+                                borderColor: 'primary.main',
                               },
                             },
                           }}
@@ -309,20 +298,8 @@ const Contact = () => {
                           required
                           sx={{
                             '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.3)',
-                              },
                               '&:hover fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.5)',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#FF6B00',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: 'text.secondary',
-                              '&.Mui-focused': {
-                                color: '#FF6B00',
+                                borderColor: 'primary.main',
                               },
                             },
                           }}
@@ -334,26 +311,14 @@ const Contact = () => {
                           label="Message"
                           name="message"
                           multiline
-                          rows={5}
+                          rows={4}
                           value={formData.message}
                           onChange={handleChange}
                           required
                           sx={{
                             '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.3)',
-                              },
                               '&:hover fieldset': {
-                                borderColor: 'rgba(255, 107, 0, 0.5)',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#FF6B00',
-                              },
-                            },
-                            '& .MuiInputLabel-root': {
-                              color: 'text.secondary',
-                              '&.Mui-focused': {
-                                color: '#FF6B00',
+                                borderColor: 'primary.main',
                               },
                             },
                           }}
@@ -364,12 +329,15 @@ const Contact = () => {
                           type="submit"
                           variant="contained"
                           size="large"
+                          fullWidth
                           sx={{
-                            px: 4,
                             py: 1.5,
-                            background: 'linear-gradient(45deg, #FF6B00, #FF8533)',
+                            fontSize: '1.1rem',
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                             '&:hover': {
-                              background: 'linear-gradient(45deg, #FF8533, #FF6B00)',
+                              boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
                             },
                           }}
                         >
